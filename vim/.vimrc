@@ -30,6 +30,12 @@ set nocompatible
 " ==============================================================================
 
 
+" ==== File-specific Styles ====================================================
+    autocmd FileType make   setlocal noexpandtab
+    autocmd FileType puppet setlocal shiftwidth=2 tabstop=2
+" ==============================================================================
+
+
 " ==== Plugins =================================================================
 
     " Enable Pathogen and load plugins
@@ -47,6 +53,7 @@ set nocompatible
 
 " ==============================================================================
 
+
 " ==== Whitespace  =============================================================
 
     " Before writing to buffer (i.e. saving file), remove all trailing whitespace
@@ -54,6 +61,9 @@ set nocompatible
 
     " Indent according to previous line
     set autoindent
+
+    " Enable indentation matching
+    filetype plugin indent on
 
     " Use 4-spaces instead of tab
     set expandtab
