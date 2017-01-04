@@ -20,6 +20,7 @@ set nocompatible
 " ==== Search ==================================================================
 
     " Use smartcase searching (i.e. ignore case if all lowercase characters)
+    set ignorecase
     set smartcase
 
     " Highlight search terms and highlight as each key is pressed
@@ -121,4 +122,8 @@ set nocompatible
     set nobackup
     set nowritebackup
 
+    " Re-read files when files are modified from outside of Vim
+    set autoread
+
 " ==============================================================================
+
