@@ -2,6 +2,33 @@
 set nocompatible
 
 
+" ==== Navigation ==============================================================
+
+    " Maintain context around cursor and start scrolling before the final line
+    set scrolloff=1
+
+    " Enable shell-like completion
+    set wildmenu
+    set wildmode=list:longest
+    set wildignore=*.o,*.obj,*.pdf
+
+    " Enable comprehensive %-movement between if-statements
+    runtime macros/matchit.vim
+
+" ==============================================================================
+
+" ==== Search ==================================================================
+
+    " Use smartcase searching (i.e. ignore case if all lowercase characters)
+    set smartcase
+
+    " Highlight search terms and highlight as each key is pressed
+    set hlsearch
+    set incsearch
+
+" ==============================================================================
+
+
 " ==== Style ===================================================================
 
     " Set the colorscheme to molokai
@@ -31,8 +58,10 @@ set nocompatible
 
 
 " ==== File-specific Styles ====================================================
+
     autocmd FileType make   setlocal noexpandtab
     autocmd FileType puppet setlocal shiftwidth=2 tabstop=2
+
 " ==============================================================================
 
 
@@ -85,3 +114,11 @@ set nocompatible
 " ==============================================================================
 
 
+" ==== Miscellaneous ===========================================================
+
+    " Disable swap files and backup files
+    set noswapfile
+    set nobackup
+    set nowritebackup
+
+" ==============================================================================
