@@ -1,3 +1,8 @@
+# Install bash configuraitons
+for $file in bash{_profile,_prompt,rc}; do
+    cp bash/$file ~/.$file
+done;
+
 # Install tmux configurations
 cp tmux/tmux.conf ~/.tmux.conf
 
@@ -6,5 +11,4 @@ cp vim/vimrc ~/.vimrc
 
 # Install Vim plugins
 cp -fR vim/vim/ ~/.vim
-
 

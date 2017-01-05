@@ -1,0 +1,28 @@
+# ==== General =================================================================
+
+    # Set custom bash prompt
+    source ~/.bash_prompt
+
+    # Source the bash configuration file to import additional configurations
+    source ~/.bashrc
+
+# ==============================================================================
+
+# ==== shopt ===================================================================
+
+    # Enable AutoCorrect for `cd`
+    shopt -s cdspell;
+
+    # Include filenames beginning with a dot in filename expansions
+
+    # Enable recursive globbing
+    shopt -s globstar
+
+    # Enable append (instead of overwrite) for .bash_history
+    shopt -s histappend;
+
+    # Enable case-insensitive globbing
+    shopt -s nocaseglob;
+
+# ==============================================================================
+
