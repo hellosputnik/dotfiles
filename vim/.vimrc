@@ -101,6 +101,7 @@ set nocompatible
 
     " Set the tab's width to 4
     set tabstop=4
+    set softtabstop=4
 
     " Do not replace/use 4-spaces over tab in Makefiles
     autocmd FileType make set noexpandtab
@@ -124,6 +125,9 @@ set nocompatible
 
     " Re-read files when files are modified from outside of Vim
     set autoread
+
+    " Enable lazyredraw to prevent unnecessary redraws
+    set lazyredraw
 
 " ==============================================================================
 
