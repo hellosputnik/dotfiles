@@ -33,12 +33,12 @@ set nocompatible
 " ==== Style ===================================================================
 
     " Set the colorscheme to molokai
-    colorscheme molokai
+    " colorscheme molokai
 
     " Set the colorscheme to solarized
-    " colorscheme solarized
-    " let g:solarized_termcolors=256
-    " set background=dark
+    colorscheme solarized
+    let g:solarized_termcolors=256
+    set background=dark
 
     " Enable the highlight on the cursor's current line
     set cursorline
