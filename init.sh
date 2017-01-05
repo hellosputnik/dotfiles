@@ -1,6 +1,6 @@
 # Install Vim configurations
-cp vim/.vimrc ~/.vimrc
+cp vim/vimrc ~/.vimrc
 
 # Install Vim plugins
-cp -R vim/.vim ~/.vim
+cp -fR vim/vim/ ~/.vim
 
