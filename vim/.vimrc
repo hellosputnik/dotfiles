@@ -4,7 +4,7 @@ set nocompatible
 
 " ==== Navigation ==============================================================
 
-    " Maintain context around cursor and start scrolling before the final line
+    " Maintain context around cursor by scrolling before the final line
     set scrolloff=1
 
     " Enable shell-like completion
@@ -16,6 +16,7 @@ set nocompatible
     runtime macros/matchit.vim
 
 " ==============================================================================
+
 
 " ==== Search ==================================================================
 
