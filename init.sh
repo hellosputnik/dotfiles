@@ -1,4 +1,4 @@
-# Install bash configuraitons
+# Install bash configurations (.bash_profile, .bash_prompt, and .bashrc)
 for $file in bash{_profile,_prompt,rc}; do
     cp bash/$file ~/.$file
 done;
