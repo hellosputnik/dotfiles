@@ -21,6 +21,9 @@
     # Enable append (instead of overwrite) for .bash_history
     shopt -s histappend;
 
+    # Ignore and erase duplicate commands
+    HISTCONTROL=ignoredups:erasedups
+
     # Enable case-insensitive globbing
     shopt -s nocaseglob;
 
