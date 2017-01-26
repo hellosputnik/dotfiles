@@ -9,6 +9,7 @@ cp tmux/tmux.conf ~/.tmux.conf
 # Install Vim configurations
 cp vim/vimrc ~/.vimrc
 
-# Install Vim plugins
+# Install Vim plugins and themes
 cp -fR vim/vim/ ~/.vim
+cp -R vim/colors/ ~/.vim/colors
 
