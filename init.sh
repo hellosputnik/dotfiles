@@ -11,5 +11,4 @@ cp vim/vimrc ~/.vimrc
 
 # Install Vim plugins and themes
 cp -fR vim/vim/ ~/.vim
-cp -R vim/colors/ ~/.vim/colors
 
