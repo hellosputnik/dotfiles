@@ -1,0 +1,37 @@
+# General Configurations/Profile
+#
+# This file should include configurations exclusive to login shells,
+# environment variables such as PATH, etc.
+
+
+# ==== General =================================================================
+
+    # Comprehensively log bash history.
+    promptFunc() {
+        echo "$(date +%Y-%m-%d--%H-%M-%S) $(hostname) $PWD $(history 1)" \
+             >> ~/.bash_history.log
+    }
+    export PROMPT_COMMAND=promptFunc
+
+    # Ignore and erase common and duplicate commands.
+    export HISTIGNORE=". *:cat *:clear:exit:history:man *:source *"
+    export HISTCONTROL=ignoredups:erasedups
+
+# ==============================================================================
+
+# ==== shopt ===================================================================
+
+    # Enable AutoCorrect for `cd`.
+    shopt -s cdspell
+
+    # Enable recursive globbing
+    shopt -s globstar
+
+    # Enable append (instead of overwrite) for `.bash_history`.
+    shopt -s histappend
+
+    # Enable case-insensitive globbing.
+    shopt -s nocaseglob
+
+# ==============================================================================
+

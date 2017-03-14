@@ -1,0 +1,17 @@
+# Bash Configuration
+#
+# This file should include anything related to bash. This includes variables
+# such EDITOR, aliases, etc.
+
+
+# ==== General =================================================================
+
+    # Set Vim as the default editor.
+    export EDITOR=vim
+
+    # Set the HTTP and HTTPS proxy.
+    # export HTTP_PROXY=
+    # export HTTPS_PROXY=
+
+# ==============================================================================
+
