@@ -1,31 +1,39 @@
 # ==== General =================================================================
 
-    # Set custom bash prompt
+    # Set custom bash prompt.
     source ~/.bash_prompt
 
-    # Source the bash configuration file to import additional configurations
+    # Source the bash configuration file to import additional configurations.
     source ~/.bashrc
+
+    # Comprehensively log bash history.
+    promptFunc() {
+        echo "$(date +%Y-%m-%d--%H-%M-%S) $(hostname) $PWD $(history 1)" \
+             >> ~/.bash_history.log
+    }
+    export PROMPT_COMMAND=promptFunc
 
 # ==============================================================================
 
 # ==== shopt ===================================================================
 
-    # Enable AutoCorrect for `cd`
-    shopt -s cdspell;
+    # Enable AutoCorrect for `cd`.
+    shopt -s cdspell
 
-    # Include filenames beginning with a dot in filename expansions
+    # Include filenames beginning with a dot in filename expansions.
 
     # Enable recursive globbing
     shopt -s globstar
 
-    # Enable append (instead of overwrite) for .bash_history
-    shopt -s histappend;
+    # Enable append (instead of overwrite) for `.bash_history`.
+    shopt -s histappend
 
-    # Ignore and erase duplicate commands
-    HISTCONTROL=ignoredups:erasedups
+    # Ignore and erase common and duplicate commands.
+    export HISTIGNORE=". *:cat *:clear:exit:history:man *:source *"
+    export HISTCONTROL=ignoredups:erasedups
 
-    # Enable case-insensitive globbing
-    shopt -s nocaseglob;
+    # Enable case-insensitive globbing.
+    shopt -s nocaseglob
 
 # ==============================================================================
 
