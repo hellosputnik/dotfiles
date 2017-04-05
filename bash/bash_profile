@@ -1,39 +1,25 @@
+# Bash Profile
+#
+# This file should source all the various configuration files such as `bashrc`,
+# `bash_prompt`, and `.profile`.
+
+
 # ==== General =================================================================
 
+    # Source the profile configuration.
+    if [ -f ~/.profile]; then
+        source ~/.profile
+    fi
+
     # Set custom bash prompt.
-    source ~/.bash_prompt
+    if [ -f ~/.bash_prompt]; then
+        source ~/.bash_prompt
+    fi
 
     # Source the bash configuration file to import additional configurations.
-    source ~/.bashrc
-
-    # Comprehensively log bash history.
-    promptFunc() {
-        echo "$(date +%Y-%m-%d--%H-%M-%S) $(hostname) $PWD $(history 1)" \
-             >> ~/.bash_history.log
-    }
-    export PROMPT_COMMAND=promptFunc
-
-# ==============================================================================
-
-# ==== shopt ===================================================================
-
-    # Enable AutoCorrect for `cd`.
-    shopt -s cdspell
-
-    # Include filenames beginning with a dot in filename expansions.
-
-    # Enable recursive globbing
-    shopt -s globstar
-
-    # Enable append (instead of overwrite) for `.bash_history`.
-    shopt -s histappend
-
-    # Ignore and erase common and duplicate commands.
-    export HISTIGNORE=". *:cat *:clear:exit:history:man *:source *"
-    export HISTCONTROL=ignoredups:erasedups
-
-    # Enable case-insensitive globbing.
-    shopt -s nocaseglob
+    if [ -f ~/.bashrc]; then
+        source ~/.bashrc
+    fi
 
 # ==============================================================================
 
