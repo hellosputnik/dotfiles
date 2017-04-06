@@ -1,0 +1,26 @@
+[alias]
+	# ammend opens up the previous commit message for change.
+	ammend = commit --amend
+
+	# ls prints a more graphical version of the log.
+	ls = log --abbrev-commit --all --decorate --graph --pretty
+
+	# prune deletes outdated/unused branches.
+	prune = fetch -p
+
+	# undo reverts the previous commits while keeping the changes.
+	undo = reset --soft HEAD^
+
+[help]
+	# Git will automatically correct commands with typos.
+	autocorrect = 1
+
+[status]
+	# Show all the untracked files (instead of just directories).
+	showUntrackedFiles = all
+
+[diff]
+	tool = vimdiff
+[difftool]
+	prompt = false
+

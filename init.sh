@@ -3,6 +3,9 @@
 # Install bash configurations (bash_profile, bash_prompt, bashrc)
 echo {_profile,_prompt,rc} | xargs -n 1 -I{} cp bash/bash{} ~/.bash{}
 
+# Install git configurations
+cp git/gitconfig ~/.gitconfig
+
 # Install tmux configurations
 cp tmux/tmux.conf ~/.tmux.conf
 
