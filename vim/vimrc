@@ -128,9 +128,6 @@ set nocompatible
     set tabstop=4
     set softtabstop=4
 
-    " Do not replace/use 4-spaces over tab in Makefiles
-    autocmd FileType make set noexpandtab
-
     " Display whitespace characters, specifically tab and trailing whitespace
     set list
     set listchars=tab:>-,trail:~
