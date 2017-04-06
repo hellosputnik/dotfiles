@@ -83,8 +83,10 @@ set nocompatible
 
 " ==== File-specific Styles ====================================================
 
-    autocmd FileType make   setlocal noexpandtab
-    autocmd FileType puppet setlocal shiftwidth=2 tabstop=2
+    autocmd FileType gitconfig  setlocal noexpandtab
+    autocmd FileType javascript setlocal shiftwidth=2 softtabstop=2 tabstop=2
+    autocmd FileType make       setlocal noexpandtab
+    autocmd FileType puppet     setlocal shiftwidth=2 softtabstop=2 tabstop=2
 
 " ==============================================================================
 
@@ -125,9 +127,6 @@ set nocompatible
     " Set the tab's width to 4
     set tabstop=4
     set softtabstop=4
-
-    " Do not replace/use 4-spaces over tab in Makefiles
-    autocmd FileType make set noexpandtab
 
     " Display whitespace characters, specifically tab and trailing whitespace
     set list
