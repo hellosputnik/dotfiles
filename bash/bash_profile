@@ -1,8 +1,6 @@
-# Bash Profile
+# .bash_profile
 #
-# This file should source all the various configuration files such as `bashrc`,
-# `bash_prompt`, and `.profile`.
-
+# This is the personal initialization file, which is executed for login shells.
 
 # ==== General =================================================================
 

@@ -1,7 +1,7 @@
-# General Configurations/Profile
+# .profile
 #
-# This file should include configurations exclusive to login shells,
-# environment variables such as PATH, etc.
+# This file should include initialize configurations, enable custom options, and
+# environment variables. This profile is executed for login via shell.
 
 
 # ==== General =================================================================
