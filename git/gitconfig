@@ -15,6 +15,10 @@
 	# Git will automatically correct commands with typos.
 	autocorrect = 1
 
+[log]
+    # Display the commit dates in the local time zone.
+    date=local
+
 [status]
 	# Show all the untracked files (instead of just directories).
 	showUntrackedFiles = all
