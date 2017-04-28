@@ -1,13 +1,14 @@
-# Bash Configuration
+# .bashrc
 #
-# This file should include anything related to bash. This includes variables
-# such EDITOR, aliases, etc.
+# This file is the individual configuration file, which is executed once per
+# interactive shell.
 
 
 # ==== General =================================================================
 
     # Set Vim as the default editor.
     export EDITOR=vim
+    export VSIUAL=vim
 
     # Set the HTTP and HTTPS proxy.
     # export HTTP_PROXY=
