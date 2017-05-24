@@ -1,4 +1,4 @@
-" Disable vi-compatibility nonsense
+" Disable vi-compatibility
 set nocompatible
 
 
@@ -134,6 +134,20 @@ set nocompatible
 
     " Enable expected backspace behavior
     set backspace=eol,indent,start
+
+" ==============================================================================
+
+
+" ==== Snippets ================================================================
+
+    " C
+    nnoremap <leader>c :-1read $HOME/.vim/snippets/main.c<CR>
+
+    " C++
+    nnoremap <leader>c :-1read $HOME/.vim/snippets/main.cpp<CR>
+
+    " HTML
+    nnoremap <leader>html :-1read $HOME/.vim/snippets/index.html<CR>
 
 " ==============================================================================
 
