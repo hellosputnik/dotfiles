@@ -1,7 +1,9 @@
 #!/bin/bash
 
 # Install bash configurations (bash_profile, bash_prompt, bashrc)
-echo {_profile,_prompt,rc} | xargs -n 1 -I{} cp bash/bash{} ~/.bash{}
+cp bash/bash_profile ~/.bash_profile
+cp bash/bash_prompt  ~/.bash_prompt
+cp bash/bashrc       ~/.bashrc
 
 # Install git configurations
 cp git/gitconfig ~/.gitconfig
