@@ -99,7 +99,8 @@ set nocompatible
     " vim-airline options
     " Use powerline fonts for the powerline icons
     let g:airline_powerline_fonts=1
-    " Always display the status bar
+
+    " Always display the status line
     set laststatus=2
 
     " vim-airline-themes options
