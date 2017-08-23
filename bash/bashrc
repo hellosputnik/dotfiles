@@ -10,9 +10,13 @@
     export EDITOR=vim
     export VSIUAL=vim
 
+    # Set custom bash prompt.
+    source ~/.bash_prompt
+
     # Set the HTTP and HTTPS proxy.
     # export HTTP_PROXY=
     # export HTTPS_PROXY=
+
 
 # ==============================================================================
 
