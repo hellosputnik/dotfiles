@@ -16,16 +16,18 @@
 	autocorrect = 1
 
 [log]
-    # Display the commit dates in the local time zone.
-    date=local
+	# Display the commit dates in the local time zone.
+	date=local
 
 [status]
 	# Show all the untracked files (instead of just directories).
 	showUntrackedFiles = all
 
 [diff]
+	# Use vimdiff for diff operations.
 	tool = vimdiff
 
 [difftool]
+	# Do not prompt to launch the difftool.
 	prompt = false
 
