@@ -1,6 +1,6 @@
 [alias]
-	# ammend opens up the previous commit message for change.
-	ammend = commit --amend
+	# amend opens up the previous commit message for change.
+	amend = commit --amend
 
 	# ls prints a more graphical version of the log.
 	ls = log --abbrev-commit --all --decorate --graph --pretty
