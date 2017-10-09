@@ -1,5 +1,7 @@
-" Disable vi-compatibility
-set nocompatible
+" Disable vi-compatibility only if not already disabled to avoid bugs
+if &compatible
+    set nocompatible
+endif
 
 
 " ==== Custom Key Bindings =====================================================
@@ -69,8 +71,10 @@ set nocompatible
     " Enable line numbers
     set number
 
-    " Turn syntax highlighting on
-    syntax on
+    " Enable syntax highlighting properly (i.e. do not use `syntax on`)
+    if !exists("g:syntax_on")
+        syntax enable
+    endif
 
     " Display rule at the bottom
     set ruler
@@ -142,10 +146,10 @@ set nocompatible
 " ==== Snippets ================================================================
 
     " C
-    nnoremap <leader>c :-1read $HOME/.vim/snippets/main.c<CR>
+    nnoremap <leader>c    :-1read $HOME/.vim/snippets/main.c<CR>
 
     " C++
-    nnoremap <leader>c :-1read $HOME/.vim/snippets/main.cpp<CR>
+    nnoremap <leader>cpp  :-1read $HOME/.vim/snippets/main.cpp<CR>
 
     " HTML
     nnoremap <leader>html :-1read $HOME/.vim/snippets/index.html<CR>
