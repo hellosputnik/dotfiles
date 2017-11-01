@@ -8,7 +8,7 @@
 
     # Set Vim as the default editor.
     export EDITOR=vim
-    export VSIUAL=vim
+    export VISUAL=vim
 
     # Set custom bash prompt.
     source ~/.bash_prompt
