@@ -1,8 +1,10 @@
 " ==== Vim =====================================================================
 
-    " Use vim configurations and packages
+    " Use vim packages
     set runtimepath+=~/.vim,~/.vim/after
     set packpath+=~/.vim
+
+    " Use vim configurations
     source ~/.vimrc
 
 " ==============================================================================
