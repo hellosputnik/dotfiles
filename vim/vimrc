@@ -97,8 +97,15 @@ endif
 
 " ==== Plugins =================================================================
 
-    " Enable Pathogen and load plugins
-    execute pathogen#infect()
+    " Enable vim-plug
+    call plug#begin('~/.vim/plugins')
+
+    Plug 'bling/vim-airline'
+    Plug 'easymotion/vim-easymotion'
+    Plug 'fatih/vim-go', { 'tag': '*' }
+    Plug 'junegunn/fzf.vim'
+    Plug 'rodjek/vim-puppet'
+    Plug 'tpope/vim-surround'
 
     " vim-airline options
     " Use powerline fonts for the powerline icons
@@ -107,9 +114,8 @@ endif
     " Always display the status line
     set laststatus=2
 
-    " vim-airline-themes options
-    " Set the airline theme to wombat
-    let g:airline_theme='wombat'
+    " Load plugins
+    call plug#end()
 
 " ==============================================================================
 
