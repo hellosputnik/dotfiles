@@ -1,3 +1,19 @@
-set bell-style             none
+# .inputrc
+#
+# This file controls the behavior of line input editing for programs that use
+# the GNU Readline library (e.g., bash, interactive Python, GDB).
+
+
+# Turn off audio cues.
+set bell-style none
+
+# Turn on colors for completion options.
+set colored-stats on
+
+# Turn off case sensitivity for completion options.
 set completion-ignore-case on
-set show-all-if-ambiguous  on
+
+# Show completion options instead of ringing the bell when there are multiple
+# completion options (i.e., when completion is ambiguous).
+set show-all-if-ambiguous on
+
