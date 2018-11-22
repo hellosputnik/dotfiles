@@ -4,19 +4,7 @@
 # interactive shell.
 
 
-# ==== General =================================================================
-
-    # Set Vim as the default editor.
-    export EDITOR=vim
-    export VISUAL=vim
-
-    # Set custom bash prompt.
-    source ~/.bash_prompt
-
-    # Set the HTTP and HTTPS proxy.
-    # export HTTP_PROXY=
-    # export HTTPS_PROXY=
-
-
-# ==============================================================================
+# Set the HTTP and HTTPS proxy.
+# export HTTP_PROXY=
+# export HTTPS_PROXY=
 

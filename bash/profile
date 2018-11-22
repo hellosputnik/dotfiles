@@ -1,37 +1,47 @@
 # .profile
 #
-# This file should include initialize configurations, enable custom options, and
-# environment variables. This profile is executed for login via shell.
+# This file initializes shell-agnostic configurations, enable custom options,
+# and sets environment variables. This profile of configurations, options, and
+# variables is set for interactive shells upon logging in.
 
 
-# ==== General =================================================================
+# Set Vim as the default editor.
+export EDITOR=vim
+export VISUAL=vim
 
-    # Comprehensively log bash history.
-    promptFunc() {
-        echo "$(date +%Y-%m-%d--%H-%M-%S) $(hostname) $PWD $(history 1)" \
-             >> ~/.bash_history.log
-    }
-    export PROMPT_COMMAND=promptFunc
+# If Vim is installed, alias `vi` to `vim`.
+if [ command -v vim ]; then
+    alias vi=vim
+fi
 
-    # Ignore and erase common and duplicate commands.
-    export HISTIGNORE=". *:cat *:clear:exit:history:man *:source *"
-    export HISTCONTROL=ignoredups:erasedups
+# If Neovim is installed, alias `vim` to `nvim`.
+if [ command -v nvim ]; then
+    alias vim=nvim
+fi
 
-# ==============================================================================
+# Print the date, hostname, and working directory of each command executed
+# into a log called `.bash_history.log`.
+prompt_command() {
+    printf "$(date +%Y-%m-%d-%H-%M-%S) $(hostname) $PWD $(history 1)\n" >> ~/.bash_history.log
+}
+export PROMPT_COMMAND=prompt_command
 
-# ==== shopt ===================================================================
+# Ignore source, clear, exit, history, and man commands.
+export HISTIGNORE=". *:source *:clear:exit:history:man *"
 
-    # Enable AutoCorrect for `cd`.
-    shopt -s cdspell
+# Ignore duplicate commands and erase duplicate commands from history.
+export HISTCONTROL=ignoredups:erasedups
 
-    # Enable recursive globbing
-    shopt -s globstar
+# Enable spelling correction for `cd`. For example, `cd /etc/mall` will
+# automatically correct to `cd /etc/mail`.
+shopt -s cdspell
 
-    # Enable append (instead of overwrite) for `.bash_history`.
-    shopt -s histappend
+# Enable recursive globbing.
+shopt -s globstar
 
-    # Enable case-insensitive globbing.
-    shopt -s nocaseglob
+# Enable append (instead of overwrite) to `.bash_history`.
+shopt -s histappend
 
-# ==============================================================================
+# Enable case-insensitive globbing.
+shopt -s nocaseglob
 
