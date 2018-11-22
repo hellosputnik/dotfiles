@@ -1,33 +1,33 @@
 [alias]
-	# amend opens up the previous commit message for change.
-	amend = commit --amend
+# amend opens up the previous commit message for change.
+amend = commit --amend
 
-	# ls prints a more graphical version of the log.
-	ls = log --abbrev-commit --all --decorate --graph --pretty
+# ls prints a more graphical version of the log.
+ls = log --abbrev-commit --all --decorate --graph --pretty
 
-	# prune deletes outdated/unused branches.
-	prune = fetch -p
+# prune deletes outdated/unused branches.
+prune = fetch -p
 
-	# undo reverts the previous commits while keeping the changes.
-	undo = reset --soft HEAD^
+# undo reverts the previous commits while keeping the changes.
+undo = reset --soft HEAD^
 
 [help]
-	# Git will automatically correct commands with typos.
-	autocorrect = 1
+# Git will automatically correct commands with typos.
+autocorrect = 1
 
 [log]
-	# Display the commit dates in the local time zone.
-	date=local
+# Display the commit dates in the local time zone.
+date=local
 
 [status]
-	# Show all the untracked files (instead of just directories).
-	showUntrackedFiles = all
+# Show all the untracked files (instead of just directories).
+showUntrackedFiles = all
 
 [diff]
-	# Use vimdiff for diff operations.
-	tool = vimdiff
+# Use vimdiff for diff operations.
+tool = vimdiff
 
 [difftool]
-	# Do not prompt to launch the difftool.
-	prompt = false
+# Do not prompt to launch the difftool.
+prompt = false
 

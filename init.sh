@@ -17,3 +17,7 @@ cp vim/vimrc ~/.vimrc
 # Install Vim plugins and themes
 cp -fR vim/vim/ ~/.vim
 
+# Install Neovim configurations
+mkdir -p ~/.config/nvim
+cp nvim/init.vim ~/.config/nvim/init.vim
+
