@@ -1,7 +1,7 @@
 # .bashrc
 #
 # This file is the individual configuration file, which is executed once per
-# interactive shell.
+# shell.
 
 
 # Set the HTTP and HTTPS proxy.
