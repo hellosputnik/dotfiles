@@ -1,6 +1,6 @@
 # bash_prompt
 #
-# This file configures bash's prompt, specifically PS1.
+# This file configures the bash prompt, specifically PS1.
 
 
 # Set variables for colors with `tput`.
@@ -14,10 +14,44 @@ cyan="\[$(tput setaf 6)\]"
 white="\[$(tput setaf 7)\]"
 
 # Set variables for PS1 components.
-u="$red\u$reset"   # Username
-h="$blue\h$reset"  # Hostname (short)
-w="$green\w$reset" # Working directory (full)
+username="$red\u$reset"
+hostname="$blue\h$reset"
+directory="$green\w$reset"
+status="$magenta\$(git-status)$reset"
+
+# Define functions for the PS1.
+git-status() {
+    # Check if the working directory is part of a git repository.
+    if [ "$(git rev-parse --git-dir)" ]; then
+        local branch="$(git symbolic-ref --quiet --short HEAD)"
+        local symbol=""
+
+        # Check for untracked files.
+        if [ -n "$(git ls-files --others --exclude-standard)" ]; then
+            symbol="${symbol}?"
+        fi
+
+        # Check for unstaged changes.
+        if ! $(git diff-files --quiet --ignore-submodules); then
+            symbol="${symbol}!"
+        fi
+
+        # Check for staged changes that have not been commited.
+        if ! $(git diff --quiet --ignore-submodules --cached); then
+            symbol="${symbol}+"
+        fi
+
+        # If there were any symbols to display, then wrap the symbols in square
+        # brackets.
+        if [ -n "${symbol}" ]; then
+            symbol="[${symbol}]"
+        fi
+
+        printf "${branch}  ${symbol}"
+    fi
+} 2>/dev/null
+
 
 # Set the PS1.
-export PS1="\n${u}@${h}: ${w}\n❯ $reset"
+export PS1="\n${username}@${hostname}: ${directory} ${status}\n❯ $reset"
 
