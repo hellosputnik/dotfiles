@@ -1,5 +1,8 @@
 #!/bin/bash
 
+# Install sh configurations
+cp sh/profile ~/.profile
+
 # Install bash configurations (bash_profile, bash_prompt, bashrc)
 cp bash/bash_profile ~/.bash_profile
 cp bash/bash_prompt  ~/.bash_prompt
