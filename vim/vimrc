@@ -37,7 +37,7 @@ endif
     set wildignore=*.o,*.obj,*.pdf
 
     " Enable comprehensive %-movement between if-statements
-    runtime macros/matchit.vim
+    " runtime macros/matchit.vim
 
 " ==============================================================================
 
@@ -57,13 +57,8 @@ endif
 
 " ==== Style ===================================================================
 
-    " Set the colorscheme to molokai
-    colorscheme molokai
-
-    " Set the colorscheme to solarized
-    " colorscheme solarized
-    " let g:solarized_termcolors=256
-    " set background=dark
+    " Set the colorscheme to Dim (Default IMproved by @jkreeftmeijer)
+    colorscheme dim
 
     " Enable the highlight on the cursor's current line
     set cursorline
