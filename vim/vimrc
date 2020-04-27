@@ -136,7 +136,7 @@ endif
 
     " Display whitespace characters, specifically tab and trailing whitespace
     set list
-    set listchars=tab:>-,trail:~
+    set listchars=tab:>·,trail:~
 
     " Enable expected backspace behavior
     set backspace=eol,indent,start
