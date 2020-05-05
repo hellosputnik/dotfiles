@@ -5,9 +5,9 @@
 # variables is set for interactive shells upon logging in.
 
 
-# Set Vim as the default editor.
-export EDITOR=vim
-export VISUAL=vim
+# Set Neovim as the default editor.
+export EDITOR=nvim
+export VISUAL=nvim
 
 # If Vim is installed, alias `vi` to `vim`.
 if [ command -v vim ]; then
@@ -19,29 +19,8 @@ if [ command -v nvim ]; then
     alias vim=nvim
 fi
 
-# Print the date, hostname, and working directory of each command executed
-# into a log called `.bash_history.log`.
-prompt_command() {
-    printf "$(date +%Y-%m-%d-%H-%M-%S) $(hostname) $PWD $(history 1)\n" >> ~/.bash_history.log
-}
-export PROMPT_COMMAND=prompt_command
-
-# Ignore source, clear, exit, history, and man commands.
-export HISTIGNORE=". *:source *:clear:exit:history:man *"
-
-# Ignore duplicate commands and erase duplicate commands from history.
-export HISTCONTROL=ignoredups:erasedups
-
-# Enable spelling correction for `cd`. For example, `cd /etc/mall` will
-# automatically correct to `cd /etc/mail`.
-shopt -s cdspell
-
-# Enable recursive globbing.
-shopt -s globstar
-
-# Enable append (instead of overwrite) to `.bash_history`.
-shopt -s histappend
-
-# Enable case-insensitive globbing.
-shopt -s nocaseglob
+# If ripgrep is installed, alias `grep` to `rg`.
+if [ command -v rg ]; then
+    alias grep=rg
+fi
 
