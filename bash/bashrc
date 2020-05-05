@@ -8,3 +8,29 @@
 # export HTTP_PROXY=
 # export HTTPS_PROXY=
 
+# Print the date, hostname, and working directory of each command executed
+# into a log called `.bash_history.log`.
+prompt_command() {
+    printf "$(date +%Y-%m-%d-%H-%M-%S) $(hostname) $PWD $(history 1)\n" >> ~/.bash_history.log
+}
+export PROMPT_COMMAND=prompt_command
+
+# Ignore source, clear, exit, history, and man commands.
+export HISTIGNORE=". *:source *:clear:exit:history:man *"
+
+# Ignore duplicate commands and erase duplicate commands from history.
+export HISTCONTROL=ignoredups:erasedups
+
+# Enable spelling correction for `cd`. For example, `cd /etc/mall` will
+# automatically correct to `cd /etc/mail`.
+shopt -s cdspell
+
+# Enable recursive globbing.
+shopt -s globstar
+
+# Enable append (instead of overwrite) to `.bash_history`.
+shopt -s histappend
+
+# Enable case-insensitive globbing.
+shopt -s nocaseglob
+
