@@ -17,7 +17,7 @@ autocorrect = 1
 
 [log]
 # Display the commit dates in the local time zone.
-date=local
+date = local
 
 [status]
 # Show all the untracked files (instead of just directories).

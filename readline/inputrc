@@ -17,3 +17,9 @@ set completion-ignore-case on
 # completion options (i.e., when completion is ambiguous).
 set show-all-if-ambiguous on
 
+# Turn on brief highlighting of when closing a parenthesis.
+set blink-matching-paren on
+
+# Turn on colored highlighting of typed characters.
+set colored-completion-prefix on
+

@@ -1,25 +1,19 @@
 # .bashrc
-#
-# This file is the individual configuration file, which is executed once per
-# shell.
 
+# Set custom bash prompt.
+source $HOME/.bash_prompt
 
-# Set the HTTP and HTTPS proxy.
-# export HTTP_PROXY=
-# export HTTPS_PROXY=
-
-# Print the date, hostname, and working directory of each command executed
-# into a log called `.bash_history.log`.
-prompt_command() {
-    printf "$(date +%Y-%m-%d-%H-%M-%S) $(hostname) $PWD $(history 1)\n" >> ~/.bash_history.log
-}
-export PROMPT_COMMAND=prompt_command
+# Write to history after each command.
+export PROMPT_COMMAND="history -a;$PROMPT_COMMAND"
 
 # Ignore source, clear, exit, history, and man commands.
 export HISTIGNORE=". *:source *:clear:exit:history:man *"
 
 # Ignore duplicate commands and erase duplicate commands from history.
 export HISTCONTROL=ignoredups:erasedups
+
+# Use custom name for history file to avoid unintended truncation.
+export HISTFILE="${HOME}/.bash_history.${USER}"
 
 # Enable spelling correction for `cd`. For example, `cd /etc/mall` will
 # automatically correct to `cd /etc/mail`.

@@ -1,18 +1,15 @@
-" ==== Vim =====================================================================
+" Vim
 
-    " Use vim packages
-    set runtimepath+=~/.vim,~/.vim/after
-    set packpath+=~/.vim
+" Use vim packages
+set runtimepath+=$HOME/.vim,$HOME/.vim/after
+set packpath+=$HOME/.vim
 
-    " Use vim configurations
-    source ~/.vimrc
+" Use vim configurations
+source $HOME/.vimrc
 
-" ==============================================================================
 
-" ==== Search ==================================================================
+" Search
 
-    " Enable search (and replace) preview
-    set inccommand=nosplit
-
-" ==============================================================================
+" Enable search (and replace) preview
+set inccommand=nosplit
 

@@ -1,26 +1,23 @@
 # .profile
-#
-# This file initializes shell-agnostic configurations, enable custom options,
-# and sets environment variables. This profile of configurations, options, and
-# variables is set for interactive shells upon logging in.
 
+# Set the HTTP and HTTPS proxy.
+# export HTTP_PROXY=
+# export HTTPS_PROXY=
+
+# Add dedicated directory for local binaries to PATH.
+export PATH=$PATH:$HOME/.local/bin
+
+# Set Vim as the default editor.
+if command -v vim > /dev/null
+then
+    export EDITOR=vim
+    export VISUAL=vim
+fi
 
 # Set Neovim as the default editor.
-export EDITOR=nvim
-export VISUAL=nvim
-
-# If Vim is installed, alias `vi` to `vim`.
-if [ command -v vim ]; then
-    alias vi=vim
-fi
-
-# If Neovim is installed, alias `vim` to `nvim`.
-if [ command -v nvim ]; then
-    alias vim=nvim
-fi
-
-# If ripgrep is installed, alias `grep` to `rg`.
-if [ command -v rg ]; then
-    alias grep=rg
+if command -v nvim > /dev/null
+then
+    export EDITOR=nvim
+    export VISUAL=nvim
 fi
 
