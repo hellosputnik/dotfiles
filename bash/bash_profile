@@ -1,19 +1,8 @@
 # .bash_profile
-#
-# A profile with configurations, options, and variables specifically for bash.
 
-# Source the profile configuration.
-if [ -f ~/.profile ]; then
-    source ~/.profile
-fi
+# Source the shell-agnostic personal configurations.
+source $HOME/.profile
 
-# Set custom bash prompt.
-if [ -f ~/.bash_prompt ]; then
-    source ~/.bash_prompt
-fi
-
-# Source the bash configuration file to import additional configurations.
-if [ -f ~/.bashrc ]; then
-    source ~/.bashrc
-fi
+# Source interactive non-login shell configurations.
+source $HOME/.bashrc
 

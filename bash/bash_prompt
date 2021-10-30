@@ -1,7 +1,7 @@
 # bash_prompt
 #
-# This file configures the bash prompt, specifically PS1.
-
+# This file configures the bash prompt, specifically the PS1 environment
+# variable.
 
 # Set variables for colors with `tput`.
 reset="\[$(tput sgr0)\]"
@@ -51,7 +51,11 @@ git-status() {
     fi
 } 2>/dev/null
 
-
 # Set the PS1.
-export PS1="\n${username}@${hostname}: ${directory} ${status}\n❯ $reset"
+if command -v git > /dev/null
+then
+    export PS1="\n${username}@${hostname}: ${directory} ${status}\n\$ $reset"
+else
+    export PS1="\n${username}@${hostname}: ${directory}\n\$ $reset"
+fi
 
