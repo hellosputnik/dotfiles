@@ -11,6 +11,12 @@ prune = fetch -p
 # undo reverts the previous commits while keeping the changes.
 undo = reset --soft HEAD^
 
+# Standard shortcuts
+co = checkout
+br = branch
+ci = commit
+st = status
+
 [help]
 # Git will automatically correct commands with typos.
 autocorrect = 1
@@ -30,4 +36,12 @@ tool = vimdiff
 [difftool]
 # Do not prompt to launch the difftool.
 prompt = false
+
+[pull]
+# Rebase on pull to keep history linear (avoids merge commits).
+rebase = true
+
+[push]
+# Only push the current branch to its upstream counterpart.
+default = current
 

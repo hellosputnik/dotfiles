@@ -5,7 +5,7 @@
 # export HTTPS_PROXY=
 
 # Add dedicated directory for local binaries to PATH.
-export PATH=$PATH:$HOME/.local/bin
+export PATH="$PATH:$HOME/.local/bin"
 
 # Set Vim as the default editor.
 if command -v vim > /dev/null

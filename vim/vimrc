@@ -23,6 +23,11 @@ noremap <leader>8 8gt
 noremap <leader>9 9gt
 noremap <leader>0 :tablast<cr>
 
+" Set FZF and Ripgrep bindings
+nnoremap <leader>f :Files<CR>
+nnoremap <leader>g :Rg<CR>
+nnoremap <leader>b :Buffers<CR>
+
 
 " Navigation
 
@@ -34,19 +39,18 @@ set wildmenu
 set wildmode=list:longest
 set wildignore=*.o,*.obj,*.pdf
 
-" Enable comprehensive %-movement between if-statements
-" runtime macros/matchit.vim
-
+" Use system clipboard
+set clipboard=unnamedplus
 
 " Search
 
 " Use smartcase searching (i.e. ignore case if all lowercase characters)
 set ignorecase
 set smartcase
+set gdefault
 
 " Highlight search terms and highlight as each key is pressed
 set hlsearch
-set incsearch
 
 
 " Style
@@ -138,6 +142,12 @@ set nowritebackup
 
 " Re-read files when files are modified from outside of Vim
 set autoread
+
+" Enable persistent undo history
+if has("persistent_undo")
+    set undodir=~/.vim/undo
+    set undofile
+endif
 
 " Enable lazyredraw to prevent unnecessary redraws
 set lazyredraw

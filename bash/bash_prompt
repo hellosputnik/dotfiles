@@ -32,12 +32,12 @@ git-status() {
         fi
 
         # Check for unstaged changes.
-        if ! $(git diff-files --quiet --ignore-submodules); then
+        if ! git diff-files --quiet --ignore-submodules; then
             symbol="${symbol}!"
         fi
 
         # Check for staged changes that have not been commited.
-        if ! $(git diff --quiet --ignore-submodules --cached); then
+        if ! git diff --quiet --ignore-submodules --cached; then
             symbol="${symbol}+"
         fi
 

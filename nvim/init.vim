@@ -5,7 +5,7 @@ set runtimepath+=$HOME/.vim,$HOME/.vim/after
 set packpath+=$HOME/.vim
 
 " Use vim configurations
-source $HOME/.vimrc
+source "$HOME/.vimrc"
 
 
 " Search

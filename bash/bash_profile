@@ -1,8 +1,20 @@
 # .bash_profile
 
+# Add Homebrew to the PATH if it exists.
+if [[ -f "/opt/homebrew/bin/brew" ]]; then
+    eval "$(/opt/homebrew/bin/brew shellenv)"
+fi
+
 # Source the shell-agnostic personal configurations.
-source $HOME/.profile
+source "$HOME/.profile"
 
 # Source interactive non-login shell configurations.
-source $HOME/.bashrc
+source "$HOME/.bashrc"
 
+# Set up the Rust/Cargo environment.
+if [ -f "$HOME/.cargo/env" ]; then
+    source "$HOME/.cargo/env"
+fi
+
+# Initialize the fuzzy finder (fzf).
+eval "$(fzf --bash)"
