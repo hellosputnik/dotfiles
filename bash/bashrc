@@ -1,9 +1,9 @@
 # .bashrc
 
-# Set custom bash prompt.
-source $HOME/.bash_prompt
+# Set the custom bash prompt.
+source "$HOME/.bash_prompt"
 
-# Write to history after each command.
+# Write to the history after each command.
 export PROMPT_COMMAND="history -a;$PROMPT_COMMAND"
 
 # Ignore source, clear, exit, history, and man commands.
@@ -12,11 +12,17 @@ export HISTIGNORE=". *:source *:clear:exit:history:man *"
 # Ignore duplicate commands and erase duplicate commands from history.
 export HISTCONTROL=ignoredups:erasedups
 
-# Use custom name for history file to avoid unintended truncation.
+# Use a custom name for the history file to avoid unintended truncation.
 export HISTFILE="${HOME}/.bash_history.${USER}"
 
-# Enable spelling correction for `cd`. For example, `cd /etc/mall` will
-# automatically correct to `cd /etc/mail`.
+# Increase the history size to leverage disk and RAM.
+export HISTSIZE=100000
+export HISTFILESIZE=200000
+
+# Add a timestamp to the history entries (Year-Month-Day Hour:Minute:Second).
+export HISTTIMEFORMAT="%F %T "
+
+# Enable spelling correction for `cd`. For example, `cd /etc/mall` will automatically correct to `cd /etc/mail`.
 shopt -s cdspell
 
 # Enable recursive globbing.
@@ -27,4 +33,55 @@ shopt -s histappend
 
 # Enable case-insensitive globbing.
 shopt -s nocaseglob
+
+# Update the values of LINES and COLUMNS after each command.
+shopt -s checkwinsize
+
+# Prevent file overwrite on stdout redirection (use '>|' to force).
+set -o noclobber
+
+# Load local overrides (secrets, machine-specific paths) if they exist.
+if [ -f "$HOME/.bashrc.local" ]; then
+    source "$HOME/.bashrc.local"
+fi
+
+# Colorize ls and grep output.
+alias ls='ls --color=auto'
+alias grep='grep --color=auto'
+alias diff='diff --color=auto'
+
+# Set navigation shortcuts.
+alias ..='cd ..'
+alias ...='cd ../..'
+
+# Use 'bat' instead of 'cat' if available.
+if command -v bat > /dev/null; then
+    alias cat='bat'
+fi
+
+# Use 'fd' instead of 'find' if available.
+if command -v fd > /dev/null; then
+    alias find='fd'
+fi
+
+# Use 'nvim' instead of 'vim' if available.
+if command -v nvim > /dev/null; then
+    alias vim='nvim'
+fi
+
+# Prevent virtualenv from modifying the PS1.
+export VIRTUAL_ENV_DISABLE_PROMPT=1
+
+# Set up the Cargo environment.
+if [ -f "$HOME/.cargo/env" ]; then
+    source "$HOME/.cargo/env"
+fi
+
+# Add Docker Desktop binaries (macOS).
+if [[ -d "/Applications/Docker.app/Contents/Resources/bin" ]]; then
+    export PATH="/Applications/Docker.app/Contents/Resources/bin:$PATH"
+fi
+
+# Initialize Zoxide for Bash.
+eval "$(zoxide init bash)"
 
