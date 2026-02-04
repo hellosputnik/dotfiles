@@ -19,8 +19,8 @@ export HISTFILE="${HOME}/.bash_history.${USER}"
 export HISTSIZE=100000
 export HISTFILESIZE=200000
 
-# Add a timestamp to the history entries (Year-Month-Day Hour:Minute:Second).
-export HISTTIMEFORMAT="%F %T "
+# Add a timestamp to the history entries (ISO 8601).
+export HISTTIMEFORMAT="%Y-%m-%dT%T%z "
 
 # Enable spelling correction for `cd`. For example, `cd /etc/mall` will automatically correct to `cd /etc/mail`.
 shopt -s cdspell
