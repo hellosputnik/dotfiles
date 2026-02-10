@@ -21,3 +21,6 @@ then
     export VISUAL=nvim
 fi
 
+# Set the ripgrep configuration file path.
+export RIPGREP_CONFIG_PATH="$HOME/.ripgreprc"
+
