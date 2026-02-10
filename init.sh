@@ -46,6 +46,12 @@ then
     safe_copy git/gitconfig "$HOME/.gitconfig"
 fi
 
+# Install ripgrep configurations if ripgrep is available.
+if command -v rg > /dev/null
+then
+    safe_copy ripgrep/ripgreprc "$HOME/.ripgreprc"
+fi
+
 # Install Tmux configurations if Tmux is available.
 if command -v tmux > /dev/null
 then
