@@ -1,7 +1,4 @@
 # bash_prompt
-#
-# This file configures the bash prompt, specifically the PS1 environment
-# variable.
 
 # Set variables for colors with `tput`.
 reset="\[$(tput sgr0)\]"
@@ -21,41 +18,51 @@ status="$magenta\$(git-status)$reset"
 
 # Define functions for the PS1.
 git-status() {
-    # Check if the working directory is part of a git repository.
-    if [ "$(git rev-parse --git-dir)" ]; then
-        local branch="$(git symbolic-ref --quiet --short HEAD)"
-        local symbol=""
+    local branch
+    branch="$(GIT_OPTIONAL_LOCKS=0 git symbolic-ref --quiet --short HEAD 2>/dev/null \
+           || GIT_OPTIONAL_LOCKS=0 git rev-parse --short HEAD 2>/dev/null)" || return
 
-        # Check for untracked files.
-        if [ -n "$(git ls-files --others --exclude-standard)" ]; then
+    local symbol=""
+
+    if command -v timeout > /dev/null; then
+        local check
+        check="$(GIT_OPTIONAL_LOCKS=0 timeout 0.2 git status --porcelain 2>/dev/null)"
+        if [ $? -eq 124 ]; then
+            printf "${branch}  "
+            return
+        fi
+
+        if echo "$check" | grep -q '^?'; then
             symbol="${symbol}?"
         fi
-
-        # Check for unstaged changes.
-        if ! git diff-files --quiet --ignore-submodules; then
+        if echo "$check" | grep -q '^ [MADRCU]'; then
             symbol="${symbol}!"
         fi
-
-        # Check for staged changes that have not been commited.
-        if ! git diff --quiet --ignore-submodules --cached; then
+        if echo "$check" | grep -q '^[MADRCU]'; then
             symbol="${symbol}+"
         fi
-
-        # If there were any symbols to display, then wrap the symbols in square
-        # brackets.
-        if [ -n "${symbol}" ]; then
-            symbol="[${symbol}]"
+    else
+        if [ -n "$(GIT_OPTIONAL_LOCKS=0 git ls-files --others --exclude-standard 2>/dev/null)" ]; then
+            symbol="${symbol}?"
         fi
-
-        printf "${branch}  ${symbol}"
+        if ! GIT_OPTIONAL_LOCKS=0 git diff-files --quiet --ignore-submodules 2>/dev/null; then
+            symbol="${symbol}!"
+        fi
+        if ! GIT_OPTIONAL_LOCKS=0 git diff --quiet --ignore-submodules --cached 2>/dev/null; then
+            symbol="${symbol}+"
+        fi
     fi
-} 2>/dev/null
+
+    if [ -n "${symbol}" ]; then
+        symbol="[${symbol}]"
+    fi
+
+    printf "${branch}  ${symbol}"
+}
 
 # Set the PS1.
-if command -v git > /dev/null
-then
+if command -v git > /dev/null; then
     export PS1="\n${username}@${hostname}: ${directory} ${status}\n\$ $reset"
 else
     export PS1="\n${username}@${hostname}: ${directory}\n\$ $reset"
 fi
-

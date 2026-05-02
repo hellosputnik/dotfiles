@@ -108,8 +108,10 @@ call plug#end()
 
 " Whitespace
 
-" Delete trailing whitespace on save.
-autocmd BufWritePre * %s/\s\+$//e
+" Delete trailing whitespace on save, except for filetypes where trailing
+" whitespace is meaningful (e.g. Markdown hard line breaks, diff/patch context).
+let g:trailing_whitespace_blacklist = ['markdown', 'diff', 'patch', 'mail', 'gitcommit']
+autocmd BufWritePre * if index(g:trailing_whitespace_blacklist, &filetype) < 0 | %s/\s\+$//e | endif
 
 " Indent according to previous line
 set autoindent

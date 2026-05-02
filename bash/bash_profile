@@ -17,4 +17,6 @@ if [ -f "$HOME/.cargo/env" ]; then
 fi
 
 # Initialize the fuzzy finder (fzf).
-eval "$(fzf --bash)"
+if command -v fzf > /dev/null; then
+    eval "$(fzf --bash)"
+fi
