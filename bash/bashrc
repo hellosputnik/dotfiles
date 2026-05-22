@@ -4,20 +4,20 @@
 source "$HOME/.bash_prompt"
 
 # Write to the history after each command.
-export PROMPT_COMMAND="history -a${PROMPT_COMMAND:+;${PROMPT_COMMAND}}"
+export PROMPT_COMMAND="history -a${PROMPT_COMMAND:+; $PROMPT_COMMAND}"
 
-# Ignore source, clear, exit, history, and man commands.
-export HISTIGNORE=". *:source *:clear:exit:history:man *"
+# Ignore source, clear, exit, history, man, navigation, and job commands.
+export HISTIGNORE=". *:source *:clear:exit:history:man *:ls:ll:la:pwd:bg:fg:jobs"
 
-# Ignore duplicate commands and erase duplicate commands from history.
-export HISTCONTROL=ignoredups:erasedups
+# Ignore duplicates/spaces and erase duplicate commands from history.
+export HISTCONTROL=ignoreboth:erasedups
 
 # Use a custom name for the history file to avoid unintended truncation.
 export HISTFILE="${HOME}/.bash_history.${USER}"
 
 # Increase the history size to leverage disk and RAM.
 export HISTSIZE=100000
-export HISTFILESIZE=200000
+export HISTFILESIZE=$((HISTSIZE * 2))
 
 # Add a timestamp to the history entries (ISO 8601).
 export HISTTIMEFORMAT="%Y-%m-%dT%T%z "
@@ -37,8 +37,7 @@ shopt -s nocaseglob
 # Update the values of LINES and COLUMNS after each command.
 shopt -s checkwinsize
 
-# Prevent accidental data loss from clobbering existing files via '>'.
-# Use '>|' to force overwrite when intentional.
+# Prevent file overwrite on stdout redirection (use '>|' to force).
 set -o noclobber
 
 # Load local overrides (secrets, machine-specific paths) if they exist.
@@ -55,6 +54,16 @@ alias diff='diff --color=auto'
 alias ..='cd ..'
 alias ...='cd ../..'
 
+# Use 'bat' instead of 'cat' if available.
+if command -v bat > /dev/null; then
+    alias cat='bat'
+fi
+
+# Use 'fd' instead of 'find' if available.
+if command -v fd > /dev/null; then
+    alias find='fd'
+fi
+
 # Use 'nvim' instead of 'vim' if available.
 if command -v nvim > /dev/null; then
     alias vim='nvim'
@@ -63,13 +72,76 @@ fi
 # Prevent virtualenv from modifying the PS1.
 export VIRTUAL_ENV_DISABLE_PROMPT=1
 
+# Set up the Cargo environment.
+if [ -f "$HOME/.cargo/env" ]; then
+    source "$HOME/.cargo/env"
+fi
+
 # Add Docker Desktop binaries (macOS).
 if [[ -d "/Applications/Docker.app/Contents/Resources/bin" ]]; then
-    export PATH="/Applications/Docker.app/Contents/Resources/bin:$PATH"
+    export PATH="/Applications/Docker.app/Contents/Resources/bin${PATH:+:$PATH}"
 fi
 
 # Initialize Zoxide for Bash.
-if command -v zoxide > /dev/null; then
-    eval "$(zoxide init bash)"
-fi
+eval "$(zoxide init bash)"
 
+# Custom alias for ssh to mainframe
+alias shell='ssh Michael@altimit'
+
+# Proactively remove misspelled commands from history
+_bash_history_hook() {
+    # Capture exit status of the command that just ran
+    local last_status=$?
+    
+    # Get the last command from history
+    local last_cmd
+    last_cmd=$(fc -ln -1 2>/dev/null)
+    
+    # Strip leading/trailing whitespace
+    last_cmd="${last_cmd##[[:space:]]}"
+    last_cmd="${last_cmd%%[[:space:]]}"
+    
+    [[ -z "$last_cmd" ]] && return
+    
+    local should_clean=0
+    
+    # 1. Handle command not found (exit status 127)
+    if [[ $last_status -eq 127 ]]; then
+        should_clean=1
+    # 2. Check for git command with misspelled subcommands
+    else
+        # Parse the command into words using a bash array
+        local words
+        read -r -a words <<< "$last_cmd"
+        local first_word="${words[0]}"
+        
+        if [[ "$first_word" == "git" ]]; then
+            local second_word="${words[1]}"
+            # Only check if there is a subcommand and it doesn't start with a hyphen
+            if [[ -n "$second_word" && ! "$second_word" =~ ^- ]]; then
+                # Verify if it is a valid git subcommand or alias
+                local is_valid=0
+                if git --list-cmds=main,others | rg -q "^${second_word}$"; then
+                    is_valid=1
+                elif git config --get "alias.${second_word}" &>/dev/null; then
+                    is_valid=1
+                fi
+                
+                # If invalid, mark for cleaning
+                if [[ $is_valid -eq 0 ]]; then
+                    should_clean=1
+                fi
+            fi
+        fi
+    fi
+    
+    # Perform cleanup if needed
+    if [[ $should_clean -eq 1 ]]; then
+        history -d $((HISTCMD - 1)) 2>/dev/null
+        # Write the updated in-memory history back to the file
+        history -w
+    fi
+}
+
+# Append the history hook to PROMPT_COMMAND
+export PROMPT_COMMAND="${PROMPT_COMMAND:+$PROMPT_COMMAND; }_bash_history_hook"
