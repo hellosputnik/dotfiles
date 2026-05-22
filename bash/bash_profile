@@ -11,11 +11,6 @@ source "$HOME/.profile"
 # Source interactive non-login shell configurations.
 source "$HOME/.bashrc"
 
-# Set up the Rust/Cargo environment.
-if [ -f "$HOME/.cargo/env" ]; then
-    source "$HOME/.cargo/env"
-fi
-
 # Initialize the fuzzy finder (fzf).
 if command -v fzf > /dev/null; then
     eval "$(fzf --bash)"

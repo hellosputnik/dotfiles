@@ -1,7 +1,7 @@
 # .profile
 
 # Add dedicated directory for local binaries to PATH.
-export PATH="$PATH:$HOME/.local/bin"
+export PATH="$HOME/.local/bin${PATH:+:$PATH}"
 
 # Set the default editor.
 if command -v nvim > /dev/null; then
