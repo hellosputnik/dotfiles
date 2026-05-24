@@ -1,5 +1,10 @@
 # bash_prompt
 
+# Define a fallback wrapper for timeout on macOS if gtimeout is available.
+if [[ "$(uname)" == "Darwin" ]] && ! command -v timeout >/dev/null && command -v gtimeout >/dev/null; then
+    timeout() { gtimeout "$@"; }
+fi
+
 # Set variables for colors with `tput`.
 reset="\[$(tput sgr0)\]"
 red="\[$(tput setaf 1)\]"
