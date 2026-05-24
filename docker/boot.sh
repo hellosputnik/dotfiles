@@ -5,8 +5,19 @@
 # Set the image name.
 IMAGE_NAME="altimit"
 BUILD_FLAG=0
+CLEAN_FLAG=0
 TARGET_DIRECTORY=""
 USERNAME="$(whoami)"
+
+show_help() {
+    echo "Usage: boot [options] [target_directory]"
+    echo ""
+    echo "Options:"
+    echo "  --build      Force rebuild the Docker image."
+    echo "  --clean      Run in a clean, isolated environment (do not mount host *.local files)."
+    echo "  -h, --help   Show this help message."
+    exit 0
+}
 
 # Parse the command-line arguments.
 while [[ $# -gt 0 ]]; do
@@ -14,6 +25,13 @@ while [[ $# -gt 0 ]]; do
         --build)
             BUILD_FLAG=1
             shift
+            ;;
+        --clean)
+            CLEAN_FLAG=1
+            shift
+            ;;
+        -h|--help)
+            show_help
             ;;
         *)
             if [ -z "$TARGET_DIRECTORY" ]; then
@@ -76,9 +94,21 @@ fi
 # -v $TARGET_DIRECTORY:/workspace: Mount the target directory as the workspace.
 # -v $HOME/.ssh:/home/${USERNAME}/.ssh:ro: Mount SSH keys (Read-Only) for Git operations.
 # -v $HOME/.gitconfig:/home/${USERNAME}/.gitconfig:ro: Mount the Git identity configuration.
+MOUNT_ARGS=(
+    -v "$TARGET_DIRECTORY:/workspace"
+    -v "$HOME/.ssh:/home/${USERNAME}/.ssh:ro"
+    -v "$HOME/.gitconfig:/home/${USERNAME}/.gitconfig:ro"
+)
+
+# Mount local overrides (git identity, shell overrides) if we are not running a clean environment
+if [[ ${CLEAN_FLAG} -eq 0 ]]; then
+    if [ -f "$HOME/.gitconfig.local" ]; then
+        MOUNT_ARGS+=( -v "$HOME/.gitconfig.local:/home/${USERNAME}/.gitconfig.local:ro" )
+    fi
+    if [ -f "$HOME/.bashrc.local" ]; then
+        MOUNT_ARGS+=( -v "$HOME/.bashrc.local:/home/${USERNAME}/.bashrc.local:ro" )
+    fi
+fi
+
 echo "Entering portable environment..."
-docker run -it --rm \
-    -v "$TARGET_DIRECTORY:/workspace" \
-    -v "$HOME/.ssh:/home/${USERNAME}/.ssh:ro" \
-    -v "$HOME/.gitconfig:/home/${USERNAME}/.gitconfig:ro" \
-    ${IMAGE_NAME}
+docker run -it --rm "${MOUNT_ARGS[@]}" ${IMAGE_NAME}

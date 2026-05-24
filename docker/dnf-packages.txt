@@ -9,6 +9,7 @@ procps-ng
 which
 passwd
 
+glibc-langpack-en
 neovim
 tmux
 
