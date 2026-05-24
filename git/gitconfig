@@ -10,7 +10,7 @@
 	# prune deletes outdated/unused remote-tracking branches.
 	prune = fetch -p
 	# tidy fetches & prunes, then deletes local branches already merged into the current branch (excluding main/master and the current one).
-	tidy = "!git fetch --prune && git branch --merged | grep -Ev '\\*|master|main' | xargs -I {} git branch -d {}"
+	tidy = "!git fetch --prune && git branch --merged | grep -Ev '\\*|master|main' | xargs -r git branch -d"
 	# undo unwinds the last commit while keeping the changes staged.
 	undo = reset --soft HEAD^
 
