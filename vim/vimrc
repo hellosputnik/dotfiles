@@ -1,4 +1,4 @@
-" Disable vi-compatibility only if not already disabled to avoid bugs
+" Disable vi-compatibility if it is not already disabled to avoid legacy quirks.
 if &compatible
     set nocompatible
 endif
@@ -6,7 +6,7 @@ endif
 
 " Custom Key Bindings
 
-" Set the leader key to space
+" Set the map leader key to space.
 let mapleader=" "
 
 " Set tab-related bindings
@@ -31,10 +31,10 @@ nnoremap <leader>b :Buffers<CR>
 
 " Navigation
 
-" Maintain context around cursor by scrolling before the final line
+" Keep context lines visible above and below the cursor when scrolling.
 set scrolloff=1
 
-" Enable shell-like completion
+" Enable shell-like command-line completion.
 set wildmenu
 set wildmode=list:longest
 set wildignore=*.o,*.obj,*.pdf
@@ -44,7 +44,7 @@ set clipboard=unnamedplus
 
 " Search
 
-" Use smartcase searching (i.e. ignore case if all lowercase characters)
+" Use case-insensitive search unless the query contains uppercase letters.
 set ignorecase
 set smartcase
 set gdefault
@@ -64,7 +64,7 @@ set cursorline
 " Enable line numbers
 set number
 
-" Enable syntax highlighting properly (i.e. do not use `syntax on`)
+" Enable syntax highlighting if it is not already active.
 if !exists("g:syntax_on")
     syntax enable
 endif
@@ -109,12 +109,12 @@ call plug#end()
 
 " Whitespace
 
-" Delete trailing whitespace on save, except for filetypes where trailing
-" whitespace is meaningful (e.g. Markdown hard line breaks, diff/patch context).
+" Remove trailing whitespace on save, except in filetypes where it is meaningful
+" (e.g., Markdown hard line breaks, diff or patch context).
 let g:trailing_whitespace_blacklist = ['markdown', 'diff', 'patch', 'mail', 'gitcommit']
 autocmd BufWritePre * if index(g:trailing_whitespace_blacklist, &filetype) < 0 | keepjumps keeppatterns %s/\s\+$//e | endif
 
-" Indent according to previous line
+" Automatically indent new lines to match the previous line's indentation.
 set autoindent
 
 " Enable indentation matching
@@ -128,11 +128,11 @@ set shiftwidth=4
 set tabstop=4
 set softtabstop=4
 
-" Display whitespace characters, specifically tab and trailing whitespace
+" Display tabs and trailing whitespaces visually.
 set list
 set listchars=tab:>·,trail:~
 
-" Enable expected backspace behavior
+" Configure standard backspace behavior over line breaks and indents.
 set backspace=eol,indent,start
 
 
@@ -143,7 +143,7 @@ set noswapfile
 set nobackup
 set nowritebackup
 
-" Re-read files when files are modified from outside of Vim
+" Automatically reload files modified outside of Vim.
 set autoread
 
 " Enable persistent undo history

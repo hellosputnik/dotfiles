@@ -2,7 +2,7 @@ FROM fedora:41
 
 COPY docker/dnf-packages.txt /tmp/dnf-packages.txt
 
-# Leverage BuildKit cache mounts for DNF to speed up rebuilding
+# Leverage BuildKit cache mounts for dnf to speed up rebuilding.
 RUN --mount=type=cache,target=/var/cache/dnf \
     dnf update -y && \
     dnf install -y @development-tools && \
@@ -19,7 +19,7 @@ ARG UID=1000
 ARG GID=1000
 ARG USERNAME=neo
 
-# Create group if not already present on host to handle GID collisions
+# Create a group if not already present on the host to handle GID collisions.
 RUN if ! getent group ${GID} > /dev/null; then \
     groupadd --gid ${GID} ${USERNAME}; \
     fi

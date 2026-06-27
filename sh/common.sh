@@ -1,5 +1,5 @@
 # sh/common.sh
-# Shared installation and console utilities for dotfiles setup.
+# Shared installation and console utility functions for the dotfiles setup.
 
 # Print an aligned log message with a highlighted action prefix.
 # Usage: log_action <action> <message>
@@ -65,18 +65,18 @@ run_with_spinner() {
     local start_time
     start_time=$(get_time_ms)
 
-    # Run command in background and redirect output to temp file
+    # Run the command in the background and redirect output to a temporary file.
     local temp_out
     temp_out=$(mktemp)
     
     "$@" > "$temp_out" 2>&1 &
     local pid=$!
 
-    # Braille spinner characters
+    # Braille spinner characters.
     local spin="⠋⠙⠹⠸⠼⠴⠦⠧⠇⠏"
     local i=0
 
-    # If stdout is a TTY, animate the spinner. Otherwise, wait silently.
+    # If standard output is a TTY, animate the spinner. Otherwise, wait silently.
     if [ -t 1 ] && [ -z "${NO_COLOR:-}" ]; then
         while kill -0 "$pid" 2>/dev/null; do
             local char="${spin:$i:1}"
@@ -106,7 +106,7 @@ run_with_spinner() {
         duration_str=$(printf "%d.%02ds" "$secs" "$ms")
     fi
 
-    # Clear spinner line and print completed log
+    # Clear the spinner line and print the completed log.
     if [ -t 1 ] && [ -z "${NO_COLOR:-}" ]; then
         printf "\r\033[K\033[1;32m%12s\033[0m %s \033[2min %s\033[0m\n" "$done_action" "$message" "$duration_str"
     else
@@ -122,7 +122,7 @@ run_with_spinner() {
     return $exit_code
 }
 
-# Copy a file or directory; for directories, copies *contents* into destination.
+# Copy a file or directory. For directories, this copies their contents recursively.
 # Usage: safe_copy <source> <destination>
 safe_copy() {
     local source="$1"
@@ -149,7 +149,7 @@ safe_copy() {
         mkdir -p "$destination"
         if command -v rsync > /dev/null; then
             # -a: Enable archive mode (preserves timestamps and recursion).
-            # --no-perms: Do not strictly enforce permissions (useful when syncing across filesystems or users).
+            # --no-perms: Do not strictly enforce permissions (useful when copying across different file systems or users).
             rsync -a --no-perms "${source%/}/" "${destination%/}/"
         else
             # Fallback to the standard cp command.

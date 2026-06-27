@@ -5,7 +5,7 @@ if [[ "$(uname)" == "Darwin" ]] && ! command -v timeout >/dev/null && command -v
     timeout() { gtimeout "$@"; }
 fi
 
-# Set variables for colors with `tput`.
+# Set color variables using tput.
 reset="\[$(tput sgr0)\]"
 red="\[$(tput setaf 1)\]"
 green="\[$(tput setaf 2)\]"
@@ -15,13 +15,13 @@ magenta="\[$(tput setaf 5)\]"
 cyan="\[$(tput setaf 6)\]"
 white="\[$(tput setaf 7)\]"
 
-# Set variables for PS1 components.
+# Set components for the custom prompt (PS1).
 username="$red\u$reset"
 hostname="$blue\h$reset"
 directory="$green\w$reset"
 status="$magenta\$(git-status)$reset"
 
-# Define functions for the PS1.
+# Define helper functions for the prompt (PS1).
 git-status() {
     local branch
     branch="$(GIT_OPTIONAL_LOCKS=0 git symbolic-ref --quiet --short HEAD 2>/dev/null \
@@ -63,7 +63,7 @@ git-status() {
     printf "${branch}  ${symbol}"
 }
 
-# Set the PS1.
+# Set the prompt (PS1).
 if command -v git > /dev/null; then
     export PS1="\n${username}@${hostname}: ${directory} ${status}\n\$ $reset"
 else

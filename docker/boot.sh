@@ -2,7 +2,7 @@
 
 # Wrapper script to run the dotfiles Docker environment.
 
-# Set the image name.
+# Set the Docker image name.
 IMAGE_NAME="altimit"
 BUILD_FLAG=0
 CLEAN_FLAG=0
@@ -13,7 +13,7 @@ show_help() {
     echo "Usage: boot [options] [target_directory]"
     echo ""
     echo "Options:"
-    echo "  --build      Force rebuild the Docker image."
+    echo "  --build      Force a rebuild of the Docker image."
     echo "  --clean      Run in a clean, isolated environment (do not mount host *.local files)."
     echo "  -h, --help   Show this help message."
     exit 0
@@ -50,20 +50,20 @@ if [ -z "$TARGET_DIRECTORY" ]; then
     TARGET_DIRECTORY="$(pwd)"
 fi
 
-# Ensure that the target directory exists.
+# Ensure the target directory exists.
 if [ ! -d "$TARGET_DIRECTORY" ]; then
     echo "Error: Directory '$TARGET_DIRECTORY' does not exist."
     exit 1
 fi
 
-# Resolve the absolute path for the target directory.
+# Resolve the absolute path of the target directory.
 TARGET_DIRECTORY="$(cd "$TARGET_DIRECTORY" && pwd)"
 
 
 echo "Mounting workspace: $TARGET_DIRECTORY"
 
 # Locate the script directory to find the Dockerfile and build context.
-# We resolve the symlink to ensure we find the actual directory of the script.
+# Resolve symlinks to ensure the actual script directory is resolved.
 SOURCE="${BASH_SOURCE[0]}"
 while [ -h "$SOURCE" ]; do 
   DIRECTORY="$( cd -P "$( dirname "$SOURCE" )" >/dev/null 2>&1 && pwd )"
@@ -73,13 +73,13 @@ done
 SCRIPT_DIRECTORY="$( cd -P "$( dirname "$SOURCE" )" >/dev/null 2>&1 && pwd )"
 REPOSITORY_ROOT="$(dirname "$SCRIPT_DIRECTORY")"
 
-# Build the image if it does not exist or if the --build flag is provided.
+# Build the image if it does not exist or if the --build flag is set.
 if [[ "$(docker images -q ${IMAGE_NAME} 2> /dev/null)" == "" ]] || [[ ${BUILD_FLAG} -eq 1 ]]; then
     echo "Building Docker image '${IMAGE_NAME}'..."
     echo "Build context: ${REPOSITORY_ROOT}"
 
-    # Build using the repository root as the context so we can COPY all dotfiles.
-    # We pass the current user's UID/GID so the container user matches the host user.
+    # Build using the repository root as context to copy all dotfiles.
+    # Pass the current user's UID and GID so the container user matches the host user.
     docker build \
         --build-arg UID=$(id -u) \
         --build-arg GID=$(id -g) \
@@ -92,7 +92,7 @@ fi
 # -it: Enable an interactive terminal.
 # --rm: Remove the container after exit.
 # -v $TARGET_DIRECTORY:/workspace: Mount the target directory as the workspace.
-# -v $HOME/.ssh:/home/${USERNAME}/.ssh:ro: Mount SSH keys (Read-Only) for Git operations.
+# -v $HOME/.ssh:/home/${USERNAME}/.ssh:ro: Mount SSH keys (read-only) for Git operations.
 # -v $HOME/.gitconfig:/home/${USERNAME}/.gitconfig:ro: Mount the Git identity configuration.
 MOUNT_ARGS=(
     -v "$TARGET_DIRECTORY:/workspace"
@@ -100,7 +100,7 @@ MOUNT_ARGS=(
     -v "$HOME/.gitconfig:/home/${USERNAME}/.gitconfig:ro"
 )
 
-# Mount local overrides (git identity, shell overrides) if we are not running a clean environment
+# Mount local overrides (Git identity and shell overrides) if not running in a clean environment.
 if [[ ${CLEAN_FLAG} -eq 0 ]]; then
     if [ -f "$HOME/.gitconfig.local" ]; then
         MOUNT_ARGS+=( -v "$HOME/.gitconfig.local:/home/${USERNAME}/.gitconfig.local:ro" )

@@ -9,7 +9,7 @@ export PROMPT_COMMAND="history -a${PROMPT_COMMAND:+; $PROMPT_COMMAND}"
 # Ignore source, clear, exit, history, man, navigation, and job commands.
 export HISTIGNORE=". *:source *:clear:exit:history:man *:ls:ll:la:pwd:bg:fg:jobs"
 
-# Ignore duplicates/spaces and erase duplicate commands from history.
+# Ignore duplicate commands and lines starting with spaces, and erase duplicates from history.
 export HISTCONTROL=ignoreboth:erasedups
 
 # Use a custom name for the history file to avoid unintended truncation.
@@ -22,22 +22,22 @@ export HISTFILESIZE=$((HISTSIZE * 2))
 # Add a timestamp to the history entries (ISO 8601).
 export HISTTIMEFORMAT="%Y-%m-%dT%T%z "
 
-# Enable spelling correction for `cd`. For example, `cd /etc/mall` will automatically correct to `cd /etc/mail`.
+# Enable spelling correction for cd (e.g., cd /etc/mall corrects to cd /etc/mail).
 shopt -s cdspell
 
 # Enable recursive globbing.
 shopt -s globstar
 
-# Enable append (instead of overwrite) to `.bash_history`.
+# Append to history instead of overwriting it.
 shopt -s histappend
 
 # Enable case-insensitive globbing.
 shopt -s nocaseglob
 
-# Update the values of LINES and COLUMNS after each command.
+# Update the LINES and COLUMNS variables after each command.
 shopt -s checkwinsize
 
-# Prevent file overwrite on stdout redirection (use '>|' to force).
+# Prevent accidental file overwriting when redirecting output (use >| to force).
 set -o noclobber
 
 # Load local overrides (secrets, machine-specific paths) if they exist.
@@ -69,10 +69,10 @@ if command -v nvim > /dev/null; then
     alias vim='nvim'
 fi
 
-# Prevent virtualenv from modifying the PS1.
+# Prevent Python virtualenv from modifying the shell prompt.
 export VIRTUAL_ENV_DISABLE_PROMPT=1
 
-# Set up the Cargo environment.
+# Set up the Rust Cargo environment.
 if [ -f "$HOME/.cargo/env" ]; then
     source "$HOME/.cargo/env"
 fi
@@ -82,24 +82,24 @@ if [[ -d "/Applications/Docker.app/Contents/Resources/bin" ]]; then
     export PATH="/Applications/Docker.app/Contents/Resources/bin${PATH:+:$PATH}"
 fi
 
-# Initialize Zoxide for Bash.
+# Initialize zoxide for Bash.
 if command -v zoxide > /dev/null; then
     eval "$(zoxide init bash)"
 fi
 
-# Custom alias for ssh to mainframe
+# Define an alias to SSH into the mainframe.
 alias shell='ssh Michael@altimit'
 
-# Proactively remove misspelled commands from history
+# Proactively remove misspelled commands from history.
 _bash_history_hook() {
-    # Capture exit status of the command that just ran
+    # Capture the exit status of the command that just ran.
     local last_status=$?
     
-    # Get the last command from history
+    # Get the last command from history.
     local last_cmd
     last_cmd=$(fc -ln -1 2>/dev/null)
     
-    # Strip leading/trailing whitespace
+    # Strip leading and trailing whitespace.
     last_cmd="${last_cmd##[[:space:]]}"
     last_cmd="${last_cmd%%[[:space:]]}"
     
@@ -107,21 +107,21 @@ _bash_history_hook() {
     
     local should_clean=0
     
-    # 1. Handle command not found (exit status 127)
+    # Handle "command not found" errors (exit status 127).
     if [[ $last_status -eq 127 ]]; then
         should_clean=1
-    # 2. Check for git command with misspelled subcommands
+    # Check for Git commands with misspelled subcommands.
     else
-        # Parse the command into words using a bash array
+        # Parse the command into words using a Bash array.
         local words
         read -r -a words <<< "$last_cmd"
         local first_word="${words[0]}"
         
         if [[ "$first_word" == "git" ]]; then
             local second_word="${words[1]}"
-            # Only check if there is a subcommand and it doesn't start with a hyphen
+            # Only check if there is a subcommand and it does not start with a hyphen.
             if [[ -n "$second_word" && ! "$second_word" =~ ^- ]]; then
-                # Verify if it is a valid git subcommand or alias
+                # Verify if the subcommand is a valid Git subcommand or alias.
                 local is_valid=0
                 if git --list-cmds=main,others | grep -q "^${second_word}$"; then
                     is_valid=1
@@ -129,7 +129,7 @@ _bash_history_hook() {
                     is_valid=1
                 fi
                 
-                # If invalid, mark for cleaning
+                # If the subcommand is invalid, mark the history entry for removal.
                 if [[ $is_valid -eq 0 ]]; then
                     should_clean=1
                 fi
@@ -137,13 +137,13 @@ _bash_history_hook() {
         fi
     fi
     
-    # Perform cleanup if needed
+    # Remove the command from history if marked for cleaning.
     if [[ $should_clean -eq 1 ]]; then
         history -d $((HISTCMD - 1)) 2>/dev/null
-        # Write the updated in-memory history back to the file
+        # Write the updated in-memory history back to the file.
         history -w
     fi
 }
 
-# Append the history hook to PROMPT_COMMAND
+# Append the history hook to PROMPT_COMMAND.
 export PROMPT_COMMAND="${PROMPT_COMMAND:+$PROMPT_COMMAND; }_bash_history_hook"
