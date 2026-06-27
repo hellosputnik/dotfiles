@@ -37,15 +37,13 @@ git-status() {
             return
         fi
 
-        if echo "$check" | grep -q '^?'; then
-            symbol="${symbol}?"
-        fi
-        if echo "$check" | grep -q '^ [MADRCU]'; then
-            symbol="${symbol}!"
-        fi
-        if echo "$check" | grep -q '^[MADRCU]'; then
-            symbol="${symbol}+"
-        fi
+        while IFS= read -r line; do
+            case "$line" in
+                \?\?*) [[ "$symbol" != *\?* ]] && symbol="${symbol}?" ;;
+                \ [MADRCU]*) [[ "$symbol" != *\!* ]] && symbol="${symbol}!" ;;
+                [MADRCU]*) [[ "$symbol" != *+* ]] && symbol="${symbol}+" ;;
+            esac
+        done <<< "$check"
     else
         if [ -n "$(GIT_OPTIONAL_LOCKS=0 git ls-files --others --exclude-standard 2>/dev/null)" ]; then
             symbol="${symbol}?"
