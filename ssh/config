@@ -1,0 +1,13 @@
+Host *
+  # Keep connections alive by sending a packet every 60 seconds.
+  ServerAliveInterval 60
+  ServerAliveCountMax 30
+
+  # Share SSH connections to speed up subsequent logins to the same host.
+  ControlMaster auto
+  ControlPath ~/.ssh/sockets/%r@%h:%p
+  ControlPersist 15m
+
+  # Store SSH keys in the macOS Keychain so you do not type passwords every time.
+  AddKeysToAgent yes
+  UseKeychain yes
