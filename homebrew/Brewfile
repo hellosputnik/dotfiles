@@ -1,0 +1,11 @@
+tap "homebrew/bundle"
+
+brew "git"
+brew "ripgrep"
+brew "fd"
+brew "bat"
+brew "zoxide"
+brew "tmux"
+brew "vim"
+brew "neovim"
+brew "eza"
