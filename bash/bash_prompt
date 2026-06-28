@@ -15,19 +15,48 @@ magenta="\[$(tput setaf 5)\]"
 cyan="\[$(tput setaf 6)\]"
 white="\[$(tput setaf 7)\]"
 
-# Set components for the custom prompt (PS1).
-username="$red\u$reset"
-hostname="$blue\h$reset"
+# Highlight root and SSH sessions without changing normal prompt shape.
+if [[ "${USER:-}" == "root" ]]; then
+    username="$red\u$reset"
+else
+    username="$cyan\u$reset"
+fi
+
+if [[ -n "${SSH_TTY:-}" ]]; then
+    hostname="$yellow\h$reset"
+else
+    hostname="$blue\h$reset"
+fi
+
 directory="$green\w$reset"
 status="$magenta\$(git-status)$reset"
+
+# Set terminal title only if the terminal supports it.
+if [[ "$TERM" == xterm* || "$TERM" == rxvt* || "$TERM" == screen* || "$TERM" == tmux* || -n "${TERM_PROGRAM:-}" ]]; then
+    title="\[\033]0;\w\007\]"
+else
+    title=""
+fi
 
 # Define helper functions for the prompt (PS1).
 git-status() {
     local branch
-    branch="$(GIT_OPTIONAL_LOCKS=0 git symbolic-ref --quiet --short HEAD 2>/dev/null \
-           || GIT_OPTIONAL_LOCKS=0 git rev-parse --short HEAD 2>/dev/null)" || return
-
     local symbol=""
+
+    # Resolve branch/tag/SHA with timeout protection.
+    if command -v timeout > /dev/null; then
+        branch="$(GIT_OPTIONAL_LOCKS=0 timeout 0.1 git symbolic-ref --quiet --short HEAD 2>/dev/null \
+               || GIT_OPTIONAL_LOCKS=0 timeout 0.1 git describe --all --exact-match HEAD 2>/dev/null \
+               || GIT_OPTIONAL_LOCKS=0 timeout 0.1 git rev-parse --short HEAD 2>/dev/null)" || return
+
+        # Check for stashes with timeout protection.
+        if GIT_OPTIONAL_LOCKS=0 timeout 0.1 git rev-parse --verify refs/stash >/dev/null 2>&1; then
+            symbol="${symbol}\$"
+        fi
+    else
+        # Fallback to fast branch-only lookup if timeout tool is missing.
+        branch="$(GIT_OPTIONAL_LOCKS=0 git symbolic-ref --quiet --short HEAD 2>/dev/null)" || return
+    fi
 
     if command -v timeout > /dev/null; then
         local check
@@ -65,7 +94,11 @@ git-status() {
 
 # Set the prompt (PS1).
 if command -v git > /dev/null; then
-    export PS1="\n${username}@${hostname}: ${directory} ${status}\n\$ $reset"
+    export PS1="${title}\n${username}@${hostname}: ${directory} ${status}\n\$ $reset"
 else
-    export PS1="\n${username}@${hostname}: ${directory}\n\$ $reset"
+    export PS1="${title}\n${username}@${hostname}: ${directory}\n\$ $reset"
 fi
+
+# Define a 6-space padding helper for PS4 debugging alignment (supports up to 999,999 lines).
+export PS4_PAD="      "
+export PS4='+ ${BASH_SOURCE}:${LINENO}${PS4_PAD:${#LINENO}}:${FUNCNAME[0]:+ ${FUNCNAME[0]}(): }'

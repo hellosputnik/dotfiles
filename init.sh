@@ -3,7 +3,7 @@
 set -euo pipefail
 
 # Run from the script's own directory so all relative source paths resolve
-# correctly regardless of where the user invoked init.sh from.
+# correctly, regardless of the directory from which init.sh was invoked.
 cd "$(dirname "${BASH_SOURCE[0]}")"
 
 source sh/common.sh
@@ -24,25 +24,30 @@ create_boot_link() {
     ln -sf "$PWD/docker/boot.sh" "$HOME/.local/bin/boot"
 }
 
-run_task "Synced" "shell-agnostic configurations" safe_copy sh/profile "$HOME/.profile"
+run_task "Installed" "~/.profile" safe_copy sh/profile "$HOME/.profile"
 
-run_task "Synced" "Bash configurations" sync_bash
-
-if [ ! -f "$HOME/.bashrc.local" ]; then
-    run_task "Created" "local overrides file: ~/.bashrc.local" touch "$HOME/.bashrc.local"
+if [ ! -f "$HOME/.profile.local" ]; then
+    run_task "Created" "~/.profile.local" touch "$HOME/.profile.local"
 fi
 
-run_task "Synced" "Readline configurations" safe_copy readline/inputrc "$HOME/.inputrc"
+run_task "Installed" "Bash configurations" sync_bash
+
+if [ ! -f "$HOME/.bashrc.local" ]; then
+    run_task "Created" "~/.bashrc.local" touch "$HOME/.bashrc.local"
+fi
+
+run_task "Installed" "~/.inputrc" safe_copy readline/inputrc "$HOME/.inputrc"
 
 if command -v git > /dev/null; then
-    run_task "Synced" "Git configurations" safe_copy git/gitconfig "$HOME/.gitconfig"
+    run_task "Installed" "~/.gitconfig" safe_copy git/gitconfig "$HOME/.gitconfig"
+    run_task "Installed" "~/.gitignore" safe_copy git/gitignore "$HOME/.gitignore"
 
     if [ ! -f "$HOME/.gitconfig.local" ]; then
-        run_task "Created" "local git config: ~/.gitconfig.local" touch "$HOME/.gitconfig.local"
+        run_task "Created" "~/.gitconfig.local" touch "$HOME/.gitconfig.local"
     fi
 
-    # Prompt for git identity if not already set, and only when interactive
-    # (skip in Docker builds and when stdin is piped).
+    # Prompt for Git identity if it is not already set, and only in interactive sessions
+    # (skipped in Docker builds and when standard input is piped).
     if [ -t 0 ] && [ "${DOCKER:-}" != "true" ]; then
         if [ -z "$(git config --global --includes --get user.name 2>/dev/null)" ] \
                 || [ -z "$(git config --global --includes --get user.email 2>/dev/null)" ]; then
@@ -52,19 +57,36 @@ if command -v git > /dev/null; then
 fi
 
 if command -v rg > /dev/null; then
-    run_task "Synced" "ripgrep configurations" safe_copy ripgrep/ripgreprc "$HOME/.ripgreprc"
+    run_task "Installed" "~/.ripgreprc" safe_copy ripgrep/ripgreprc "$HOME/.ripgreprc"
+fi
+
+if command -v curl > /dev/null; then
+    run_task "Installed" "~/.curlrc" safe_copy network/curlrc "$HOME/.curlrc"
+fi
+
+if command -v wget > /dev/null; then
+    run_task "Installed" "~/.wgetrc" safe_copy network/wgetrc "$HOME/.wgetrc"
 fi
 
 if command -v tmux > /dev/null; then
-    run_task "Synced" "Tmux configurations" safe_copy tmux/tmux.conf "$HOME/.tmux.conf"
+    run_task "Installed" "~/.tmux.conf" safe_copy tmux/tmux.conf "$HOME/.tmux.conf"
+    if [ ! -f "$HOME/.tmux.conf.local" ]; then
+        run_task "Created" "~/.tmux.conf.local" touch "$HOME/.tmux.conf.local"
+    fi
 fi
 
 if command -v vim > /dev/null || command -v nvim > /dev/null; then
-    run_task "Synced" "Vim configurations" sync_vim
+    run_task "Installed" "Vim configurations" sync_vim
+    if [ ! -f "$HOME/.vimrc.local" ]; then
+        run_task "Created" "~/.vimrc.local" touch "$HOME/.vimrc.local"
+    fi
+    if [ ! -f "$HOME/.vimrc.bundles.local" ]; then
+        run_task "Created" "~/.vimrc.bundles.local" touch "$HOME/.vimrc.bundles.local"
+    fi
 fi
 
 if command -v nvim > /dev/null; then
-    run_task "Synced" "Neovim configurations" safe_copy nvim "$HOME/.config/nvim"
+    run_task "Installed" "~/.config/nvim" safe_copy nvim "$HOME/.config/nvim"
 fi
 
 if [ -t 0 ] && [ "${DOCKER:-}" != "true" ]; then
@@ -75,10 +97,26 @@ if [ -t 0 ] && [ "${DOCKER:-}" != "true" ]; then
     fi
 fi
 
-# Install the 'boot' launcher script only when running on the host machine.
-# This avoids creating a broken symbolic link inside the Docker container environment.
+if command -v brew > /dev/null; then
+    run_task "Installed" "~/.Brewfile" safe_copy homebrew/Brewfile "$HOME/.Brewfile"
+
+    if [ "${INSTALL_HOMEBREW_BUNDLE:-}" = "true" ]; then
+        run_with_spinner "Installing" "Installed" "Homebrew bundle" \
+            brew bundle --file "$HOME/.Brewfile" --no-upgrade
+    fi
+fi
+
 if [ "${DOCKER:-}" != "true" ]; then
-    run_task "Created" "launcher symlink: ~/.local/bin/boot" create_boot_link
+    mkdir -p "$HOME/.ssh/sockets"
+    chmod 700 "$HOME/.ssh"
+    chmod 700 "$HOME/.ssh/sockets"
+    run_task "Installed" "~/.ssh/config" safe_copy ssh/config "$HOME/.ssh/config"
+fi
+
+# Install the boot launcher script only when running on the host machine.
+# This prevents creating a broken symbolic link inside the Docker container.
+if [ "${DOCKER:-}" != "true" ]; then
+    run_task "Created" "~/.local/bin/boot" create_boot_link
 fi
 
 log_action "Finished" "dotfiles setup successfully"

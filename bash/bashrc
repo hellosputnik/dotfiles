@@ -25,14 +25,20 @@ export HISTTIMEFORMAT="%Y-%m-%dT%T%z "
 # Enable spelling correction for cd (e.g., cd /etc/mall corrects to cd /etc/mail).
 shopt -s cdspell
 
+# Correct directory spelling errors during tab completion.
+shopt -s dirspell 2> /dev/null
+
 # Enable recursive globbing.
 shopt -s globstar
 
-# Append to history instead of overwriting it.
-shopt -s histappend
-
 # Enable case-insensitive globbing.
 shopt -s nocaseglob
+
+# Save multiline commands as a single history entry.
+shopt -s cmdhist
+
+# Append to history instead of overwriting it.
+shopt -s histappend
 
 # Update the LINES and COLUMNS variables after each command.
 shopt -s checkwinsize
@@ -45,18 +51,53 @@ if [ -f "$HOME/.bashrc.local" ]; then
     source "$HOME/.bashrc.local"
 fi
 
-# Colorize ls and grep output.
-alias ls='ls --color=auto'
-alias grep='grep --color=auto'
-alias diff='diff --color=auto'
+# Prefer eza when available; otherwise, choose the host ls color flag.
+if command -v eza > /dev/null 2>&1; then
+    alias ls='eza --classify=auto --color=auto --group-directories-first'
+else
+    if command ls --color=auto > /dev/null 2>&1; then
+        _ls_color_flag='--color=auto'
+    elif command ls -G > /dev/null 2>&1; then
+        _ls_color_flag='-G'
+    else
+        _ls_color_flag=''
+    fi
+
+    alias ls="command ls ${_ls_color_flag}"
+    unset _ls_color_flag
+fi
+
+# Enable color for grep if supported.
+if printf 'x\n' | grep --color=auto -e x > /dev/null 2>&1; then
+    alias grep='grep --color=auto'
+fi
+
+# Enable color for diff if supported.
+if diff --color=auto /dev/null /dev/null > /dev/null 2>&1; then
+    alias diff='diff --color=auto'
+fi
 
 # Set navigation shortcuts.
 alias ..='cd ..'
 alias ...='cd ../..'
 
+# Highlight sections inside man pages and other less output.
+export LESS_TERMCAP_mb=$'\e[01;31m'
+export LESS_TERMCAP_md=$'\e[01;38;5;74m'
+export LESS_TERMCAP_me=$'\e[0m'
+export LESS_TERMCAP_se=$'\e[0m'
+export LESS_TERMCAP_so=$'\e[38;5;246m'
+export LESS_TERMCAP_ue=$'\e[0m'
+export LESS_TERMCAP_us=$'\e[04;38;5;146m'
+
+# Preserve ANSI colors and avoid clearing the screen in paged output.
+export LESS="${LESS:--RX}"
+export MANPAGER="${MANPAGER:-less -X}"
+
 # Use 'bat' instead of 'cat' if available.
 if command -v bat > /dev/null; then
     alias cat='bat'
+    export BAT_STYLE="${BAT_STYLE:-plain}"
 fi
 
 # Use 'fd' instead of 'find' if available.
@@ -89,6 +130,29 @@ fi
 
 # Define an alias to SSH into the mainframe.
 alias shell='ssh Michael@altimit'
+
+# Load command completions when the host provides them.
+if command -v brew > /dev/null 2>&1 \
+        && [ -r "$(brew --prefix)/etc/profile.d/bash_completion.sh" ]; then
+    # Set the legacy compatibility directory path used by Homebrew's bash-completion.
+    export BASH_COMPLETION_COMPAT_DIR="$(brew --prefix)/etc/bash_completion.d"
+    source "$(brew --prefix)/etc/profile.d/bash_completion.sh"
+elif [ -r /etc/bash_completion ]; then
+    source /etc/bash_completion
+fi
+
+# Complete SSH hostnames declared in ~/.ssh/config, ignoring wildcards.
+if [ -r "$HOME/.ssh/config" ]; then
+    if command -v rg > /dev/null; then
+        complete -o default -o nospace \
+            -W "$(rg -i '^\s*Host\s+([^*?\s]+)' -o -r '$1' "$HOME/.ssh/config" 2>/dev/null)" \
+            ssh scp sftp
+    else
+        complete -o default -o nospace \
+            -W "$(awk '/^Host / { for (i = 2; i <= NF; i++) if ($i !~ /[*?]/) print $i }' "$HOME/.ssh/config" 2>/dev/null)" \
+            ssh scp sftp
+    fi
+fi
 
 # Proactively remove misspelled commands from history.
 _bash_history_hook() {
@@ -147,3 +211,10 @@ _bash_history_hook() {
 
 # Append the history hook to PROMPT_COMMAND.
 export PROMPT_COMMAND="${PROMPT_COMMAND:+$PROMPT_COMMAND; }_bash_history_hook"
+
+# Clean up Ghostty shell integration hooks if the function is not defined.
+if [[ ";$PROMPT_COMMAND;" == *";__ghostty_hook;"* ]] && ! declare -f __ghostty_hook >/dev/null; then
+    PROMPT_COMMAND="${PROMPT_COMMAND//; __ghostty_hook/}"
+    PROMPT_COMMAND="${PROMPT_COMMAND//__ghostty_hook;/}"
+    PROMPT_COMMAND="${PROMPT_COMMAND//__ghostty_hook/}"
+fi

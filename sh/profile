@@ -12,5 +12,26 @@ elif command -v vim > /dev/null; then
     export VISUAL=vim
 fi
 
-# Set the ripgrep configuration file path.
+# ripgrep: Set the configuration file path.
 export RIPGREP_CONFIG_PATH="$HOME/.ripgreprc"
+
+# fzf: Use fd as the default search backend if available.
+if command -v fd > /dev/null 2>&1; then
+    export FZF_DEFAULT_COMMAND='fd --hidden --exclude .git'
+    export FZF_CTRL_T_COMMAND='fd --hidden --exclude .git'
+    export FZF_ALT_C_COMMAND='fd --type d --hidden --exclude .git'
+fi
+
+# fzf: Set dynamic previews based on installed helper binaries.
+if command -v bat > /dev/null 2>&1; then
+    export FZF_CTRL_T_OPTS="--preview 'bat -n --color=always {} 2>/dev/null || tree -C {} 2>/dev/null || ls -la {} 2>/dev/null'"
+elif command -v tree > /dev/null 2>&1; then
+    export FZF_CTRL_T_OPTS="--preview 'tree -C {} 2>/dev/null || ls -la {} 2>/dev/null'"
+else
+    export FZF_CTRL_T_OPTS="--preview 'ls -la {} 2>/dev/null'"
+fi
+
+# Load local shell-agnostic overrides.
+if [ -f "$HOME/.profile.local" ]; then
+    . "$HOME/.profile.local"
+fi
