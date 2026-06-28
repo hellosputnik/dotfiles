@@ -7,11 +7,9 @@
 [alias]
 	amend = commit --amend
 	ls = log --abbrev-commit --all --decorate --graph --pretty
-	# prune deletes outdated/unused remote-tracking branches.
-	prune = fetch -p
-	# tidy fetches & prunes, then deletes local branches already merged into the current branch (excluding main/master and the current one).
+	# The tidy alias fetches and prunes, then deletes local branches already merged into the current branch (excluding main, master, or the current branch).
 	tidy = "!git fetch --prune && git branch --merged | grep -Ev '\\*|master|main' | xargs -r git branch -d"
-	# undo unwinds the last commit while keeping the changes staged.
+	# The undo alias reverts the last commit while keeping the changes staged.
 	undo = reset --soft HEAD^
 
 [help]
@@ -27,22 +25,38 @@
 
 [diff]
 	tool = vimdiff
+	algorithm = histogram
+	colorMoved = zebra
+	renames = copies
 
 [difftool]
 	# Skip the "launch <tool>?" confirmation when running git difftool.
 	prompt = false
 
+[commit]
+	verbose = true
+
+[fetch]
+	prune = true
+
+[rerere]
+	enabled = true
+	autoupdate = true
+
+[rebase]
+	autosquash = true
+
 [pull]
-	# Rebase on pull to keep history linear (avoids merge commits from upstream).
+	# Rebase on pull to keep history linear (avoiding merge commits from upstream).
 	rebase = true
 
 [push]
 	# Only push the current branch to its upstream counterpart.
 	default = current
-	# Safer than --force: refuses to overwrite the remote if it has commits we haven't seen.
+	# Safer than --force: refuses to overwrite the remote if it has unseen commits.
 	forceWithLease = true
 
 [include]
 	# Load machine-specific overrides (identity, work email, etc.) from a file
-	# kept outside the dotfiles repo. Placed last so its values win.
+	# kept outside the dotfiles repository. Placed last so its values override defaults.
 	path = ~/.gitconfig.local

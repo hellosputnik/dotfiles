@@ -1,0 +1,69 @@
+# OS and file system noise.
+.DS_Store
+._*
+.Spotlight-V100
+.Trashes
+Desktop.ini
+Thumbs.db
+
+# Editor swap and backup files.
+*~
+*.sw[nop]
+*.swo
+*.swp
+.netrwhist
+Session.vim
+
+# Runtime, dependency, and build byproducts.
+*.pyc
+__pycache__/
+node_modules/
+bower_components/
+log/
+tmp/
+*.log
+tags
+.eslintcache
+
+# Python virtual environments and caches.
+.venv/
+venv/
+env/
+.pytest_cache/
+.mypy_cache/
+.ipynb_checkpoints/
+.tox/
+.coverage
+htmlcov/
+
+# Terraform cache and local state.
+.terraform/
+*.tfstate
+*.tfstate.backup
+*.tfstate.lock.info
+
+# Go workspaces and test binaries.
+go.work
+*.test
+
+# C++ build and index artifacts.
+.clangd/
+*.o
+*.obj
+*.d
+
+# Java build and compiler artifacts.
+*.class
+.gradle/
+
+# Rust build target.
+target/
+
+# IDE project metadata.
+.idea/
+.vscode/
+
+# Local secrets and tool state.
+.env
+.env.*
+.gitconfig.local

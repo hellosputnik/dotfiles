@@ -3,7 +3,6 @@ if &compatible
     set nocompatible
 endif
 
-
 " Custom Key Bindings
 
 " Set the map leader key to space.
@@ -28,7 +27,6 @@ nnoremap <leader>f :Files<CR>
 nnoremap <leader>g :Rg<CR>
 nnoremap <leader>b :Buffers<CR>
 
-
 " Navigation
 
 " Keep context lines visible above and below the cursor when scrolling.
@@ -52,7 +50,6 @@ set gdefault
 " Highlight search terms and highlight as each key is pressed
 set hlsearch
 
-
 " Style
 
 " Set the colorscheme to Dim (Default IMproved by @jkreeftmeijer)
@@ -69,12 +66,18 @@ if !exists("g:syntax_on")
     syntax enable
 endif
 
-" Display rule at the bottom
+" Display the cursor position and display partial commands
 set ruler
+set showcmd
+
+" Limit the autocompletion menu height
+set pumheight=10
+
+" Configure the default spellcheck language
+set spelllang=en_us
 
 " Set the maximum line width to 128
 set textwidth=128
-
 
 " File-specific Styles
 autocmd FileType gitconfig  setlocal noexpandtab
@@ -82,7 +85,6 @@ autocmd FileType javascript setlocal shiftwidth=2 softtabstop=2 tabstop=2
 autocmd FileType make       setlocal noexpandtab
 autocmd FileType python     setlocal shiftwidth=4 softtabstop=4 tabstop=4 expandtab
 autocmd FileType puppet     setlocal shiftwidth=2 softtabstop=2 tabstop=2
-
 
 " Plugins
 
@@ -103,9 +105,13 @@ let g:airline_powerline_fonts=1
 " Always display the status line
 set laststatus=2
 
+" Load local plugin overrides.
+if filereadable(expand("~/.vimrc.bundles.local"))
+    source ~/.vimrc.bundles.local
+endif
+
 " Load plugins
 call plug#end()
-
 
 " Whitespace
 
@@ -135,7 +141,6 @@ set listchars=tab:>·,trail:~
 " Configure standard backspace behavior over line breaks and indents.
 set backspace=eol,indent,start
 
-
 " Miscellaneous
 
 " Disable swap files and backup files
@@ -155,3 +160,23 @@ endif
 " Enable lazyredraw to prevent unnecessary redraws
 set lazyredraw
 
+" Map Tab and Shift-Tab to cycle through autocompletion suggestions.
+function! InsertTabWrapper()
+    let col = col('.') - 1
+    if !col || getline('.')[col - 1] !~ '\k'
+        return "\<tab>"
+    else
+        return "\<c-p>"
+    endif
+endfunction
+inoremap <expr> <tab> InsertTabWrapper()
+inoremap <expr> <s-tab> pumvisible() ? "\<c-n>" : "\<s-tab>"
+
+" Map Leader + h/l to switch between open buffers.
+nnoremap <leader>h :bprevious<CR>
+nnoremap <leader>l :bnext<CR>
+
+" Load local Vim overrides.
+if filereadable(expand("~/.vimrc.local"))
+    source ~/.vimrc.local
+endif
