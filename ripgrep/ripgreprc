@@ -1,1 +1,13 @@
 --smart-case
+--max-columns=256
+--max-columns-preview
+
+# Keep expensive dependency and build directories out of global searches in non-Git folders.
+--glob=!**/.clangd/**
+--glob=!**/.git/**
+--glob=!**/.gradle/**
+--glob=!**/.venv/**
+--glob=!**/node_modules/**
+--glob=!**/target/**
+--glob=!**/vendor/**
+--glob=!**/venv/**

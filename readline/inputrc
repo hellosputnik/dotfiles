@@ -3,7 +3,6 @@
 # This file controls the behavior of line input editing for programs that use
 # the GNU Readline library (e.g., bash, interactive Python, GDB).
 
-
 # Turn off audio cues.
 set bell-style none
 
@@ -13,13 +12,20 @@ set colored-stats on
 # Turn off case sensitivity for completion options.
 set completion-ignore-case on
 
-# Show completion options instead of ringing the bell when there are multiple
-# completion options (i.e., when completion is ambiguous).
+# Show all matching options immediately on the first Tab press when completion is ambiguous.
 set show-all-if-ambiguous on
 
-# Turn on brief highlighting of when closing a parenthesis.
+# Highlight matching parentheses briefly when closing them.
 set blink-matching-paren on
 
-# Turn on colored highlighting of typed characters.
+# Highlight the common completion prefix in color.
 set colored-completion-prefix on
 
+# Prefix history search with Up and Down arrows.
+"\e[A": history-search-backward
+"\e[B": history-search-forward
+
+# Preserve UTF-8 input and output.
+set input-meta on
+set output-meta on
+set convert-meta off
