@@ -89,6 +89,10 @@ if command -v nvim > /dev/null; then
     run_task "Installed" "~/.config/nvim" safe_copy nvim "$HOME/.config/nvim"
 fi
 
+if command -v ghostty > /dev/null; then
+    run_task "Installed" "~/.config/ghostty" safe_copy ghostty "$HOME/.config/ghostty"
+fi
+
 if [ -t 0 ] && [ "${DOCKER:-}" != "true" ]; then
     if command -v nvim > /dev/null; then
         run_with_spinner "Installing" "Installed" "Neovim plugins" nvim +PlugInstall +qall
