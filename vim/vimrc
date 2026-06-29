@@ -52,8 +52,44 @@ set hlsearch
 
 " Style
 
-" Set the colorscheme to Dim (Default IMproved by @jkreeftmeijer)
-colorscheme dim
+" Set the colorscheme to habamax
+colorscheme habamax
+
+" If running in Neovim, make the background transparent to match the terminal background and show blur
+if has('nvim')
+    function! s:ClearBackgrounds()
+        highlight Normal guibg=NONE ctermbg=NONE
+        highlight NormalNC guibg=NONE ctermbg=NONE
+        highlight EndOfBuffer guibg=NONE ctermbg=NONE
+        highlight LineNr guibg=NONE ctermbg=NONE
+        highlight SignColumn guibg=NONE ctermbg=NONE
+        highlight Folded guibg=NONE ctermbg=NONE
+        highlight FoldColumn guibg=NONE ctermbg=NONE
+        highlight VertSplit guibg=NONE ctermbg=NONE
+    endfunction
+
+    autocmd ColorScheme * call s:ClearBackgrounds()
+    " Run immediately for the active colorscheme
+    call s:ClearBackgrounds()
+
+    highlight StatusLine guibg=#3e4452 gui=bold
+    highlight StatusLineNC guibg=#2c323c gui=NONE
+    highlight CursorLine guibg=#2c323c gui=NONE
+
+
+    " Enable rounded borders for LSP hover and diagnostics floating windows
+    lua << EOF
+    vim.diagnostic.config({
+      float = { border = "rounded" },
+    })
+    local orig_util_open_floating_preview = vim.lsp.util.open_floating_preview
+    function vim.lsp.util.open_floating_preview(contents, syntax, opts, ...)
+      opts = opts or {}
+      opts.border = opts.border or "rounded"
+      return orig_util_open_floating_preview(contents, syntax, opts, ...)
+    end
+EOF
+endif
 
 " Enable the highlight on the cursor's current line
 set cursorline
@@ -101,6 +137,17 @@ Plug 'tpope/vim-surround'
 " vim-airline options
 " Use powerline fonts for the powerline icons
 let g:airline_powerline_fonts=1
+
+" Enable curved/rounded statusline separators
+if !exists('g:airline_symbols')
+    let g:airline_symbols = {}
+endif
+let g:airline_left_sep = ''
+let g:airline_left_alt_sep = ''
+let g:airline_right_sep = ''
+let g:airline_right_alt_sep = ''
+let g:airline#extensions#tabline#left_sep = ''
+let g:airline#extensions#tabline#left_alt_sep = ''
 
 " Always display the status line
 set laststatus=2
