@@ -167,7 +167,7 @@ vim.opt.rtp:prepend(lazypath)
 
 -- List of plugins to install (Comment/Uncomment lines to enable/disable)
 require("lazy").setup({
-  { "rose-pine/neovim" },
+  { "folke/tokyonight.nvim" },
   { "nvim-lualine/lualine.nvim" },
   { "nvim-tree/nvim-web-devicons" },
   { "nvim-lua/plenary.nvim" },
@@ -185,21 +185,25 @@ require("lazy").setup({
 }, {})
 
 -- Configure plugins
-local has_rose_pine, rose_pine = pcall(require, "rose-pine")
-if has_rose_pine then
-  rose_pine.setup({
+local has_tokyonight, tokyonight = pcall(require, "tokyonight")
+if has_tokyonight then
+  tokyonight.setup({
+    style = "night",
     styles = {
-      italic = false,
-    }
+      comments = { italic = false },
+      keywords = { italic = false },
+      functions = { italic = false },
+      variables = { italic = false },
+    },
   })
-  vim.cmd("colorscheme rose-pine")
+  vim.cmd("colorscheme tokyonight")
 end
 
 local has_lualine, lualine = pcall(require, "lualine")
 if has_lualine then
   lualine.setup({
     options = {
-      theme = "rose-pine",
+      theme = "tokyonight",
       section_separators = { left = "", right = "" },
       component_separators = { left = "", right = "" },
     }

@@ -31,8 +31,8 @@ font-size = 12
 cursor-style = block
 cursor-style-blink = true
 cursor-opacity = 0.8
-theme = light:Rose Pine Dawn,dark:Rose Pine
+theme = TokyoNight
 
 # Keybindings
-keybind = global:cmd+shift+grave_accent=toggle_quick_terminal
+keybind = global:ctrl+grave_accent=toggle_quick_terminal
 keybind = cmd+shift+p=unbind
