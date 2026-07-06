@@ -73,6 +73,9 @@ if command -v tmux > /dev/null; then
     if [ ! -f "$HOME/.tmux.conf.local" ]; then
         run_task "Created" "~/.tmux.conf.local" touch "$HOME/.tmux.conf.local"
     fi
+    if [ ! -d "$HOME/.tmux/plugins/tpm" ]; then
+        run_task "Installing" "tmux plugin manager (tpm)" git clone https://github.com/tmux-plugins/tpm "$HOME/.tmux/plugins/tpm"
+    fi
 fi
 
 if command -v vim > /dev/null || command -v nvim > /dev/null; then
