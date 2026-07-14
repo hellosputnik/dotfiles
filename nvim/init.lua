@@ -171,7 +171,12 @@ require("lazy").setup({
   { "nvim-lualine/lualine.nvim" },
   { "nvim-tree/nvim-web-devicons" },
   { "nvim-lua/plenary.nvim" },
-  { "nvim-telescope/telescope.nvim" },
+  {
+    "nvim-telescope/telescope.nvim",
+    dependencies = {
+      { "nvim-telescope/telescope-fzf-native.nvim", build = "make" },
+    },
+  },
   { "folke/flash.nvim" },
   { "nvim-treesitter/nvim-treesitter", branch = "master", build = ":TSUpdate" },
   { "lewis6991/gitsigns.nvim" },
@@ -182,6 +187,7 @@ require("lazy").setup({
   { "hrsh7th/nvim-cmp" },
   { "hrsh7th/cmp-nvim-lsp" },
   { "L3MON4D3/LuaSnip" },
+  { "folke/which-key.nvim", event = "VeryLazy" },
 }, {})
 
 -- Configure plugins
@@ -212,6 +218,18 @@ end
 
 local has_telescope, telescope = pcall(require, "telescope")
 if has_telescope then
+  telescope.setup({
+    extensions = {
+      fzf = {
+        fuzzy = true,
+        override_generic_sorter = true,
+        override_file_sorter = true,
+        case_mode = "smart_case",
+      },
+    },
+  })
+  pcall(telescope.load_extension, "fzf")
+
   local builtin = require("telescope.builtin")
   vim.keymap.set("n", "<leader>g", builtin.live_grep)
   vim.keymap.set("n", "<leader>b", builtin.buffers)
@@ -307,6 +325,11 @@ if has_cmp then
       { name = "nvim_lsp" },
     }),
   })
+end
+
+local has_which_key, which_key = pcall(require, "which-key")
+if has_which_key then
+  which_key.setup()
 end
 
 -- Load local plugin overrides.
