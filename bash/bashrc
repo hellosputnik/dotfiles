@@ -1,5 +1,10 @@
 # .bashrc
 
+# Source Ghostty shell integration if running under Ghostty.
+if [ -n "${GHOSTTY_RESOURCES_DIR:-}" ] && [ -f "${GHOSTTY_RESOURCES_DIR}/shell-integration/bash/ghostty.bash" ]; then
+    builtin source "${GHOSTTY_RESOURCES_DIR}/shell-integration/bash/ghostty.bash"
+fi
+
 # Set the custom bash prompt.
 source "$HOME/.bash_prompt"
 
@@ -110,6 +115,13 @@ if command -v nvim > /dev/null; then
     alias vim='nvim'
 fi
 
+# Use 'rmv' instead of 'rm' if available.
+if command -v rmv > /dev/null; then
+    if [[ $- == *i* ]]; then
+        alias rm='rmv'
+    fi
+fi
+
 # Prevent Python virtualenv from modifying the shell prompt.
 export VIRTUAL_ENV_DISABLE_PROMPT=1
 
@@ -213,8 +225,10 @@ _bash_history_hook() {
 export PROMPT_COMMAND="${PROMPT_COMMAND:+$PROMPT_COMMAND; }_bash_history_hook"
 
 # Clean up Ghostty shell integration hooks if the function is not defined.
-if [[ ";$PROMPT_COMMAND;" == *";__ghostty_hook;"* ]] && ! declare -f __ghostty_hook >/dev/null; then
+if [[ "$PROMPT_COMMAND" == *__ghostty_hook* ]] && ! declare -f __ghostty_hook >/dev/null; then
     PROMPT_COMMAND="${PROMPT_COMMAND//; __ghostty_hook/}"
+    PROMPT_COMMAND="${PROMPT_COMMAND//__ghostty_hook; /}"
     PROMPT_COMMAND="${PROMPT_COMMAND//__ghostty_hook;/}"
     PROMPT_COMMAND="${PROMPT_COMMAND//__ghostty_hook/}"
 fi
+
