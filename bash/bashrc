@@ -117,9 +117,7 @@ fi
 
 # Use 'rmv' instead of 'rm' if available.
 if command -v rmv > /dev/null; then
-    if [[ $- == *i* ]]; then
-        alias rm='rmv'
-    fi
+    alias rm='rmv'
 fi
 
 # Prevent Python virtualenv from modifying the shell prompt.
