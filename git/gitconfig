@@ -1,5 +1,6 @@
 [core]
 	excludesFile = ~/.gitignore
+	pager = less -FRX
 
 [init]
 	defaultBranch = main
