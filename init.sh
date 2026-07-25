@@ -24,6 +24,17 @@ create_boot_link() {
     ln -sf "$PWD/docker/boot.sh" "$HOME/.local/bin/boot"
 }
 
+# Install tmux plugins non-interactively (the equivalent of pressing prefix + I).
+# TPM reads the plugin list from ~/.tmux.conf but resolves the clone directory
+# from TMUX_PLUGIN_MANAGER_PATH in the tmux server environment. Both commands run
+# as one sequence because a server started with no sessions exits as soon as it
+# goes idle (exit-empty is on by default), which would race a second invocation.
+# Any already-running server is reused and left otherwise untouched.
+install_tmux_plugins() {
+    tmux start-server \; set-environment -g TMUX_PLUGIN_MANAGER_PATH "$HOME/.tmux/plugins/"
+    "$HOME/.tmux/plugins/tpm/bin/install_plugins"
+}
+
 run_task "Installed" "~/.profile" safe_copy sh/profile "$HOME/.profile"
 
 if [ ! -f "$HOME/.profile.local" ]; then
@@ -75,6 +86,14 @@ if command -v tmux > /dev/null; then
     fi
     if [ ! -d "$HOME/.tmux/plugins/tpm" ]; then
         run_task "Installing" "tmux plugin manager (tpm)" git clone https://github.com/tmux-plugins/tpm "$HOME/.tmux/plugins/tpm"
+    fi
+    # Install the declared plugins, but only in interactive host sessions
+    # (skipped in Docker builds and when standard input is piped). A failure here
+    # is non-fatal: plugin cloning needs the network, and losing it should not
+    # abort the remaining local setup steps.
+    if [ -x "$HOME/.tmux/plugins/tpm/bin/install_plugins" ] \
+            && [ -t 0 ] && [ "${DOCKER:-}" != "true" ]; then
+        run_with_spinner "Installing" "Installed" "tmux plugins" install_tmux_plugins || true
     fi
 fi
 
