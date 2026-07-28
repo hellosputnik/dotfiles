@@ -43,6 +43,12 @@ shopt -s histappend
 # Update the LINES and COLUMNS variables after each command.
 shopt -s checkwinsize
 
+# Re-check that a hashed command still exists before running it. Bash caches the PATH entry it
+# resolved per command, so an entry that is deleted rather than re-pointed (a symlink into a
+# version-pinned directory) makes a running shell fail with "No such file or directory" while
+# 'which' still succeeds. Recover a live shell with 'hash -r'.
+shopt -s checkhash
+
 # Prevent accidental file overwriting when redirecting output (use >| to force).
 set -o noclobber
 
