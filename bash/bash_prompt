@@ -59,8 +59,8 @@ git-status() {
     fi
 
     if command -v timeout > /dev/null; then
-        local check
-        check="$(GIT_OPTIONAL_LOCKS=0 timeout 0.2 git status --porcelain 2>/dev/null)"
+        local git_status_output
+        git_status_output="$(GIT_OPTIONAL_LOCKS=0 timeout 0.2 git status --porcelain 2>/dev/null)"
         if [ $? -eq 124 ]; then
             printf "${branch}  "
             return
@@ -72,7 +72,7 @@ git-status() {
                 \ [MADRCU]*) [[ "$symbol" != *\!* ]] && symbol="${symbol}!" ;;
                 [MADRCU]*) [[ "$symbol" != *+* ]] && symbol="${symbol}+" ;;
             esac
-        done <<< "$check"
+        done <<< "$git_status_output"
     else
         if [ -n "$(GIT_OPTIONAL_LOCKS=0 git ls-files --others --exclude-standard 2>/dev/null)" ]; then
             symbol="${symbol}?"

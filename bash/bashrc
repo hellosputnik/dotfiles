@@ -171,14 +171,14 @@ _bash_history_hook() {
     local last_status=$?
     
     # Get the last command from history.
-    local last_cmd
-    last_cmd=$(fc -ln -1 2>/dev/null)
+    local last_command
+    last_command=$(fc -ln -1 2>/dev/null)
     
     # Strip leading and trailing whitespace.
-    last_cmd="${last_cmd##[[:space:]]}"
-    last_cmd="${last_cmd%%[[:space:]]}"
-    
-    [[ -z "$last_cmd" ]] && return
+    last_command="${last_command##[[:space:]]}"
+    last_command="${last_command%%[[:space:]]}"
+
+    [[ -z "$last_command" ]] && return
     
     local should_clean=0
     
@@ -189,7 +189,7 @@ _bash_history_hook() {
     else
         # Parse the command into words using a Bash array.
         local words
-        read -r -a words <<< "$last_cmd"
+        read -r -a words <<< "$last_command"
         local first_word="${words[0]}"
         
         if [[ "$first_word" == "git" ]]; then
@@ -222,5 +222,3 @@ _bash_history_hook() {
 
 # Append the history hook to PROMPT_COMMAND.
 export PROMPT_COMMAND="${PROMPT_COMMAND:+$PROMPT_COMMAND; }_bash_history_hook"
-
-
