@@ -1,0 +1,141 @@
+# .zshrc
+
+# Reuse the portable environment setup for shells started without -l.
+if [[ -z "${DOTFILES_COMMON_PROFILE_LOADED:-}" ]]; then
+    source "$HOME/.profile"
+    export DOTFILES_COMMON_PROFILE_LOADED=1
+fi
+
+# Use the custom prompt and terminal title.
+source "$HOME/.zsh_prompt"
+
+# Keep a large, timestamped history file and append each command immediately.
+export HISTFILE="${HOME}/.zsh_history.${USER}"
+export HISTSIZE=100000
+export SAVEHIST=$((HISTSIZE * 2))
+setopt APPEND_HISTORY
+setopt INC_APPEND_HISTORY
+setopt EXTENDED_HISTORY
+setopt HIST_IGNORE_DUPS
+setopt HIST_IGNORE_ALL_DUPS
+setopt HIST_IGNORE_SPACE
+setopt HIST_SAVE_NO_DUPS
+
+# Prevent accidental file overwriting when redirecting output.
+setopt NO_CLOBBER
+
+# Disable terminal beeps and enable command spelling correction.
+setopt NO_BEEP
+setopt CORRECT
+
+# Ignore the same low-value commands omitted by Bash's HISTIGNORE. Also omit
+# invalid Git subcommands before they are written to the history file.
+zshaddhistory() {
+    local line="${1%%$'\n'}"
+
+    case "$line" in
+        ' '*|'. '*|'source '*|'clear'|'exit'|'history'|'man '*|'ls'|'ll'|'la'|'pwd'|'bg'|'fg'|'jobs')
+            return 1
+            ;;
+    esac
+
+    if [[ "$line" == git\ * ]]; then
+        local -a words
+        words=(${=line})
+        local second_word="${words[2]:-}"
+
+        if [[ -n "$second_word" && "$second_word" != -* ]]; then
+            if ! git --list-cmds=main,others | grep -Fqx "$second_word" 2>/dev/null \
+                    && ! git config --get "alias.${second_word}" >/dev/null 2>&1; then
+                return 1
+            fi
+        fi
+    fi
+
+    return 0
+}
+
+# Prefer eza when available; otherwise, choose the host ls color flag.
+if command -v eza >/dev/null 2>&1; then
+    alias ls='eza --classify=auto --color=auto --group-directories-first'
+else
+    if command ls --color=auto >/dev/null 2>&1; then
+        _ls_color_flag='--color=auto'
+    elif command ls -G >/dev/null 2>&1; then
+        _ls_color_flag='-G'
+    else
+        _ls_color_flag=''
+    fi
+
+    alias ls="command ls ${_ls_color_flag}"
+    unset _ls_color_flag
+fi
+
+# Enable color for grep and diff when supported.
+if printf 'x\n' | grep --color=auto -e x >/dev/null 2>&1; then
+    alias grep='grep --color=auto'
+fi
+if diff --color=auto /dev/null /dev/null >/dev/null 2>&1; then
+    alias diff='diff --color=auto'
+fi
+
+# Set navigation shortcuts.
+alias ..='cd ..'
+alias ...='cd ../..'
+
+# Highlight sections inside man pages and other less output.
+export LESS_TERMCAP_mb=$'\e[01;31m'
+export LESS_TERMCAP_md=$'\e[01;38;5;74m'
+export LESS_TERMCAP_me=$'\e[0m'
+export LESS_TERMCAP_se=$'\e[0m'
+export LESS_TERMCAP_so=$'\e[38;5;246m'
+export LESS_TERMCAP_ue=$'\e[0m'
+export LESS_TERMCAP_us=$'\e[04;38;5;146m'
+export LESS="${LESS:--RX}"
+export MANPAGER="${MANPAGER:-less -X}"
+
+# Use modern command-line replacements when available.
+if command -v bat >/dev/null 2>&1; then
+    alias cat='bat'
+    export BAT_STYLE="${BAT_STYLE:-plain}"
+fi
+if command -v fd >/dev/null 2>&1; then
+    alias find='fd'
+fi
+if command -v nvim >/dev/null 2>&1; then
+    alias vim='nvim'
+fi
+if command -v rmv >/dev/null 2>&1; then
+    alias rm='rmv'
+fi
+
+# Prevent Python virtualenv from modifying the shell prompt.
+export VIRTUAL_ENV_DISABLE_PROMPT=1
+
+# Set up the Rust Cargo environment.
+if [ -f "$HOME/.cargo/env" ]; then
+    source "$HOME/.cargo/env"
+fi
+
+# Add Docker Desktop binaries (macOS).
+if [[ -d "/Applications/Docker.app/Contents/Resources/bin" ]]; then
+    export PATH="/Applications/Docker.app/Contents/Resources/bin${PATH:+:$PATH}"
+fi
+
+# Enable zsh's native completion system. It also handles SSH host completion
+# from the user's SSH configuration on systems with the standard _ssh helper.
+autoload -Uz compinit
+compinit
+
+# Initialize cross-shell tools using their zsh integrations.
+if command -v zoxide >/dev/null 2>&1; then
+    eval "$(zoxide init zsh)"
+fi
+if command -v fzf >/dev/null 2>&1; then
+    source <(fzf --zsh)
+fi
+
+# Load local overrides (secrets and machine-specific paths) last.
+if [ -f "$HOME/.zshrc.local" ]; then
+    source "$HOME/.zshrc.local"
+fi

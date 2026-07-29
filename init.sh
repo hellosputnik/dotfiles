@@ -14,6 +14,12 @@ sync_bash() {
     safe_copy bash/bashrc "$HOME/.bashrc"
 }
 
+sync_zsh() {
+    safe_copy zsh/zprofile "$HOME/.zprofile"
+    safe_copy zsh/zshrc "$HOME/.zshrc"
+    safe_copy zsh/zsh_prompt "$HOME/.zsh_prompt"
+}
+
 sync_vim() {
     safe_copy vim/vimrc "$HOME/.vimrc"
     safe_copy vim/vim "$HOME/.vim"
@@ -45,6 +51,12 @@ run_task "Installed" "Bash configurations" sync_bash
 
 if [ ! -f "$HOME/.bashrc.local" ]; then
     run_task "Created" "~/.bashrc.local" touch "$HOME/.bashrc.local"
+fi
+
+run_task "Installed" "Zsh configurations" sync_zsh
+
+if [ ! -f "$HOME/.zshrc.local" ]; then
+    run_task "Created" "~/.zshrc.local" touch "$HOME/.zshrc.local"
 fi
 
 run_task "Installed" "~/.inputrc" safe_copy readline/inputrc "$HOME/.inputrc"

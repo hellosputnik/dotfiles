@@ -7,6 +7,7 @@ IMAGE_NAME="altimit"
 BUILD_FLAG=0
 CLEAN_FLAG=0
 TARGET_DIRECTORY=""
+SHELL_COMMAND="bash"
 USERNAME="$(whoami)"
 
 show_help() {
@@ -15,6 +16,7 @@ show_help() {
     echo "Options:"
     echo "  --build      Force a rebuild of the Docker image."
     echo "  --clean      Run in a clean, isolated environment (do not mount host *.local files)."
+    echo "  --shell NAME Start Bash or zsh inside the container (default: bash)."
     echo "  -h, --help   Show this help message."
     exit 0
 }
@@ -28,6 +30,15 @@ while [[ $# -gt 0 ]]; do
             ;;
         --clean)
             CLEAN_FLAG=1
+            shift
+            ;;
+        --shell)
+            shift
+            if [ $# -eq 0 ]; then
+                echo "Error: --shell requires bash or zsh."
+                exit 1
+            fi
+            SHELL_COMMAND="$1"
             shift
             ;;
         -h|--help)
@@ -44,6 +55,15 @@ while [[ $# -gt 0 ]]; do
             ;;
     esac
 done
+
+case "$SHELL_COMMAND" in
+    bash|zsh)
+        ;;
+    *)
+        echo "Error: unsupported shell '$SHELL_COMMAND'. Choose bash or zsh."
+        exit 1
+        ;;
+esac
 
 # Default to the current directory if no target directory is specified.
 if [ -z "$TARGET_DIRECTORY" ]; then
@@ -108,7 +128,10 @@ if [[ ${CLEAN_FLAG} -eq 0 ]]; then
     if [ -f "$HOME/.bashrc.local" ]; then
         MOUNT_ARGS+=( -v "$HOME/.bashrc.local:/home/${USERNAME}/.bashrc.local:ro" )
     fi
+    if [ -f "$HOME/.zshrc.local" ]; then
+        MOUNT_ARGS+=( -v "$HOME/.zshrc.local:/home/${USERNAME}/.zshrc.local:ro" )
+    fi
 fi
 
-echo "Entering portable environment..."
-docker run -it --rm "${MOUNT_ARGS[@]}" ${IMAGE_NAME}
+echo "Entering portable environment with ${SHELL_COMMAND}..."
+docker run -it --rm "${MOUNT_ARGS[@]}" "$IMAGE_NAME" "$SHELL_COMMAND" -i

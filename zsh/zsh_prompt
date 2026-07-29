@@ -1,0 +1,90 @@
+# zsh_prompt
+
+# Define a fallback wrapper for timeout on macOS if gtimeout is available.
+if [[ "$OSTYPE" == darwin* ]] && ! command -v timeout >/dev/null 2>&1 \
+        && command -v gtimeout >/dev/null 2>&1; then
+    timeout() { command gtimeout "$@"; }
+fi
+
+# Resolve the current Git branch and compact working-tree state. Timeout keeps
+# the prompt responsive on slow or remote filesystems.
+dotfiles_zsh_git_status() {
+    local branch='' symbol='' git_status_output='' line=''
+
+    if ! command -v git >/dev/null 2>&1; then
+        return 0
+    fi
+
+    if command -v timeout >/dev/null 2>&1; then
+        branch="$(GIT_OPTIONAL_LOCKS=0 timeout 0.1 git symbolic-ref --quiet --short HEAD 2>/dev/null \
+            || GIT_OPTIONAL_LOCKS=0 timeout 0.1 git describe --all --exact-match HEAD 2>/dev/null \
+            || GIT_OPTIONAL_LOCKS=0 timeout 0.1 git rev-parse --short HEAD 2>/dev/null)"
+        [ -n "$branch" ] || return 0
+
+        if GIT_OPTIONAL_LOCKS=0 timeout 0.1 git rev-parse --verify refs/stash >/dev/null 2>&1; then
+            symbol='\$'
+        fi
+
+        git_status_output="$(GIT_OPTIONAL_LOCKS=0 timeout 0.2 git status --porcelain 2>/dev/null)"
+        if [ $? -eq 124 ]; then
+            printf '%s  ' "$branch"
+            return 0
+        fi
+
+        while IFS= read -r line; do
+            case "$line" in
+                \?\?*) [[ "$symbol" != *\?* ]] && symbol="${symbol}?" ;;
+                \ [MADRCU]*) [[ "$symbol" != *\!* ]] && symbol="${symbol}!" ;;
+                [MADRCU]*) [[ "$symbol" != *+* ]] && symbol="${symbol}+" ;;
+            esac
+        done <<< "$git_status_output"
+    else
+        branch="$(GIT_OPTIONAL_LOCKS=0 git symbolic-ref --quiet --short HEAD 2>/dev/null)" || return 0
+
+        if [ -n "$(GIT_OPTIONAL_LOCKS=0 git ls-files --others --exclude-standard 2>/dev/null)" ]; then
+            symbol='?'
+        fi
+        if ! GIT_OPTIONAL_LOCKS=0 git diff-files --quiet --ignore-submodules 2>/dev/null; then
+            symbol="${symbol}!"
+        fi
+        if ! GIT_OPTIONAL_LOCKS=0 git diff --quiet --ignore-submodules --cached 2>/dev/null; then
+            symbol="${symbol}+"
+        fi
+    fi
+
+    [ -n "$symbol" ] && symbol="[$symbol]"
+    printf '%s  %s' "$branch" "$symbol"
+}
+
+# Set the terminal title before each prompt when the terminal supports it.
+dotfiles_zsh_title() {
+    if [[ "$TERM" == xterm* || "$TERM" == rxvt* || "$TERM" == screen* \
+            || "$TERM" == tmux* || -n "${TERM_PROGRAM:-}" ]]; then
+        print -Pn '\e]0;%~\a'
+    fi
+}
+autoload -Uz add-zsh-hook
+add-zsh-hook precmd dotfiles_zsh_title
+
+setopt PROMPT_SUBST
+
+if [[ ${EUID:-} -eq 0 ]]; then
+    dotfiles_zsh_user_color='red'
+else
+    dotfiles_zsh_user_color='cyan'
+fi
+
+if [[ -n "${SSH_TTY:-}" ]]; then
+    dotfiles_zsh_host_color='yellow'
+else
+    dotfiles_zsh_host_color='blue'
+fi
+
+if command -v git >/dev/null 2>&1; then
+    PROMPT="%F{${dotfiles_zsh_user_color}}%n%f@%F{${dotfiles_zsh_host_color}}%m%f: %F{green}%~%f %F{magenta}\$(dotfiles_zsh_git_status)%f\n%# "
+else
+    PROMPT="%F{${dotfiles_zsh_user_color}}%n%f@%F{${dotfiles_zsh_host_color}}%m%f: %F{green}%~%f\n%# "
+fi
+
+# Keep useful source-location information when tracing zsh scripts.
+PS4='+ %N:%i: '
