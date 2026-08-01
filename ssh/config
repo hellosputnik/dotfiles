@@ -10,4 +10,5 @@ Host *
 
   # Store SSH keys in the macOS Keychain so you do not type passwords every time.
   AddKeysToAgent yes
+  IgnoreUnknown UseKeychain
   UseKeychain yes
