@@ -4,6 +4,7 @@ set -euo pipefail
 
 cd "$(dirname "${BASH_SOURCE[0]}")/../.."
 
+# 1. Validate syntax for Bash, POSIX sh, and Zsh configuration files
 bash -n \
     init.sh \
     bash/bash_profile \
@@ -21,7 +22,7 @@ bash -n \
     sh/profile
 
 if ! command -v zsh >/dev/null 2>&1; then
-    printf 'zsh is required to validate the supported interactive shell.\n' >&2
+    printf 'zsh is required to validate configuration files.\n' >&2
     exit 1
 fi
 
@@ -30,8 +31,10 @@ zsh -n \
     zsh/zsh_prompt \
     zsh/zshrc
 
+# 2. Check git for trailing whitespace or unresolved merge conflicts
 git diff --check
 
+# 3. Create a temporary sandbox home directory for profile & alias testing
 temporary_directory=$(mktemp -d)
 cleanup() {
     if [[ -n "${temporary_directory:-}" && -d "$temporary_directory" ]]; then
@@ -44,22 +47,24 @@ temporary_home="$temporary_directory/home"
 temporary_binary_directory="$temporary_directory/bin"
 mkdir -p "$temporary_home/.local/bin" "$temporary_binary_directory"
 
-# Empty executable files are enough for command -v to discover these optional
-# tools while the shared configuration is sourced.
+# Create dummy binaries so alias detection logic can be tested
 for command_name in bat fd nvim rmv; do
     touch "$temporary_binary_directory/$command_name"
     chmod +x "$temporary_binary_directory/$command_name"
 done
 
+# 4. Test that sourcing sh/interactive sets alias replacements cleanly across shells
 for shell_executable in /bin/sh "$(command -v bash)" "$(command -v zsh)"; do
     HOME="$temporary_home" \
         PATH="$temporary_binary_directory:/usr/bin:/bin" \
         "$shell_executable" -c '
             . "$1"
 
+            # Verify modern tool alias mappings
             alias vim | grep -q nvim
             alias rm | grep -q rmv
 
+            # Ensure built-ins like cat and find are not shadowed by aliases
             if alias cat >/dev/null 2>&1; then
                 printf "cat must not be aliased.\n" >&2
                 exit 1
@@ -71,17 +76,23 @@ for shell_executable in /bin/sh "$(command -v bash)" "$(command -v zsh)"; do
         ' dotfiles-test "$PWD/sh/interactive"
 done
 
-# Sourcing the portable profile repeatedly must not duplicate ~/.local/bin.
+# 5. Verify that sourcing sh/profile multiple times does not duplicate PATH entries
 HOME="$temporary_home" \
     PATH="$temporary_binary_directory:/usr/bin:/bin" \
     /bin/sh -c '
         . "$1"
         . "$1"
 
-        local_binary_count=$(
-            printf "%s\n" "$PATH" |
-                awk -F : -v expected="$HOME/.local/bin" \
-                    '"'"'{ for (field_number = 1; field_number <= NF; field_number++) if ($field_number == expected) count++ } END { print count + 0 }'"'"'
-        )
+        # Count occurrences of ~/.local/bin in PATH
+        local_binary_count=0
+        old_ifs=$IFS
+        IFS=":"
+        for path_entry in $PATH; do
+            if [ "$path_entry" = "$HOME/.local/bin" ]; then
+                local_binary_count=$((local_binary_count + 1))
+            fi
+        done
+        IFS=$old_ifs
+
         [ "$local_binary_count" -eq 1 ]
     ' dotfiles-test "$PWD/sh/profile"

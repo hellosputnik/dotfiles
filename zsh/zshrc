@@ -35,7 +35,7 @@ zshaddhistory() {
     local line="${1%%$'\n'}"
 
     case "$line" in
-        ' '*|'. '*|'source '*|'clear'|'exit'|'history'|'man '*|'ls'|'ll'|'la'|'pwd'|'bg'|'fg'|'jobs')
+        ' '* | '. '* | 'source '* | 'clear' | 'exit' | 'history' | 'man '* | 'ls' | 'll' | 'la' | 'pwd' | 'bg' | 'fg' | 'jobs')
             return 1
             ;;
     esac
@@ -46,8 +46,8 @@ zshaddhistory() {
         local second_word="${words[2]:-}"
 
         if [[ -n "$second_word" && "$second_word" != -* ]]; then
-            if ! git --list-cmds=main,others | grep -Fqx "$second_word" 2>/dev/null \
-                    && ! git config --get "alias.${second_word}" >/dev/null 2>&1; then
+            if ! git --list-cmds=main,others | grep -Fqx "$second_word" 2>/dev/null &&
+                ! git config --get "alias.${second_word}" >/dev/null 2>&1; then
                 return 1
             fi
         fi
@@ -62,8 +62,8 @@ if [[ -r "$HOME/.shellrc" ]]; then
 fi
 
 # Add Homebrew's additional zsh functions before initializing completion.
-if [[ -n "${HOMEBREW_PREFIX:-}" \
-        && -d "$HOMEBREW_PREFIX/share/zsh-completions" ]]; then
+if [[ -n "${HOMEBREW_PREFIX:-}" &&
+    -d "$HOMEBREW_PREFIX/share/zsh-completions" ]]; then
     typeset -U fpath
     fpath=("$HOMEBREW_PREFIX/share/zsh-completions" "${fpath[@]}")
 fi
@@ -71,7 +71,7 @@ fi
 # Enable zsh's native completion system. It handles SSH hosts from ~/.ssh/config
 # through the standard _ssh helper.
 autoload -Uz compinit
-compinit -d "${ZDOTDIR:-$HOME}/.zcompdump"
+compinit -i -d "${ZDOTDIR:-$HOME}/.zcompdump"
 
 # Match Readline's case-insensitive, first-Tab-visible completion behavior.
 setopt AUTO_LIST
@@ -104,8 +104,8 @@ fi
 
 # Load lightweight zsh plugins directly, without a framework or plugin manager.
 zsh_autosuggestions_script=''
-if [[ -n "${HOMEBREW_PREFIX:-}" \
-        && -r "$HOMEBREW_PREFIX/share/zsh-autosuggestions/zsh-autosuggestions.zsh" ]]; then
+if [[ -n "${HOMEBREW_PREFIX:-}" &&
+    -r "$HOMEBREW_PREFIX/share/zsh-autosuggestions/zsh-autosuggestions.zsh" ]]; then
     zsh_autosuggestions_script="$HOMEBREW_PREFIX/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
 elif [[ -r /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh ]]; then
     zsh_autosuggestions_script=/usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh
@@ -118,8 +118,8 @@ unset zsh_autosuggestions_script
 # Syntax highlighting should be the final plugin loaded so it can wrap widgets
 # created by completion, fzf, and autosuggestions.
 zsh_syntax_highlighting_script=''
-if [[ -n "${HOMEBREW_PREFIX:-}" \
-        && -r "$HOMEBREW_PREFIX/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" ]]; then
+if [[ -n "${HOMEBREW_PREFIX:-}" &&
+    -r "$HOMEBREW_PREFIX/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" ]]; then
     zsh_syntax_highlighting_script="$HOMEBREW_PREFIX/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
 elif [[ -r /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]]; then
     zsh_syntax_highlighting_script=/usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
