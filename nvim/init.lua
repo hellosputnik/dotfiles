@@ -178,7 +178,7 @@ require("lazy").setup({
     },
   },
   { "folke/flash.nvim" },
-  { "nvim-treesitter/nvim-treesitter", branch = "master", build = ":TSUpdate" },
+  { "nvim-treesitter/nvim-treesitter", branch = "main", build = ":TSUpdate" },
   { "lewis6991/gitsigns.nvim" },
   { "stevearc/conform.nvim" },
   { "williamboman/mason.nvim" },
@@ -247,12 +247,9 @@ if has_flash then
   vim.keymap.set({"n", "x", "o"}, "S", function() flash.treesitter() end)
 end
 
-local has_treesitter, treesitter = pcall(require, "nvim-treesitter.configs")
+local has_treesitter, treesitter = pcall(require, "nvim-treesitter")
 if has_treesitter then
-  treesitter.setup({
-    ensure_installed = { "python", "lua", "vim", "vimdoc", "markdown" },
-    highlight = { enable = true },
-  })
+  treesitter.setup()
 end
 
 local has_gitsigns, gitsigns = pcall(require, "gitsigns")
