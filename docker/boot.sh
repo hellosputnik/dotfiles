@@ -101,8 +101,8 @@ if [[ "$(docker images -q ${IMAGE_NAME} 2> /dev/null)" == "" ]] || [[ ${BUILD_FL
     # Build using the repository root as context to copy all dotfiles.
     # Pass the current user's UID and GID so the container user matches the host user.
     docker build \
-        --build-arg UID=$(id -u) \
-        --build-arg GID=$(id -g) \
+        --build-arg "UID=$(id -u)" \
+        --build-arg "GID=$(id -g)" \
         --build-arg USERNAME="${USERNAME}" \
         -t ${IMAGE_NAME} \
         -f "${SCRIPT_DIRECTORY}/Dockerfile" "${REPOSITORY_ROOT}"
