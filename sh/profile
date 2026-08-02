@@ -1,13 +1,27 @@
 # .profile
 
-# Add dedicated directory for local binaries to PATH.
-export PATH="$HOME/.local/bin${PATH:+:$PATH}"
+# Initialize Homebrew for both Bash and zsh, including shells started outside
+# the macOS Terminal login flow.
+if [ -z "${HOMEBREW_PREFIX:-}" ]; then
+    if [ -x /opt/homebrew/bin/brew ]; then
+        eval "$(/opt/homebrew/bin/brew shellenv)"
+    elif [ -x /usr/local/bin/brew ]; then
+        eval "$(/usr/local/bin/brew shellenv)"
+    fi
+fi
+
+# Add the dedicated directory for local binaries to PATH exactly once.
+case ":${PATH:-}:" in
+    *":$HOME/.local/bin:"*) ;;
+    *) PATH="$HOME/.local/bin${PATH:+:$PATH}" ;;
+esac
+export PATH
 
 # Set the default editor.
-if command -v nvim > /dev/null; then
+if command -v nvim >/dev/null; then
     export EDITOR=nvim
     export VISUAL=nvim
-elif command -v vim > /dev/null; then
+elif command -v vim >/dev/null; then
     export EDITOR=vim
     export VISUAL=vim
 fi
@@ -16,16 +30,16 @@ fi
 export RIPGREP_CONFIG_PATH="$HOME/.ripgreprc"
 
 # fzf: Use fd as the default search backend if available.
-if command -v fd > /dev/null 2>&1; then
+if command -v fd >/dev/null 2>&1; then
     export FZF_DEFAULT_COMMAND='fd --hidden --exclude .git'
     export FZF_CTRL_T_COMMAND='fd --hidden --exclude .git'
     export FZF_ALT_C_COMMAND='fd --type d --hidden --exclude .git'
 fi
 
 # fzf: Set dynamic previews based on installed helper binaries.
-if command -v bat > /dev/null 2>&1; then
+if command -v bat >/dev/null 2>&1; then
     export FZF_CTRL_T_OPTS="--preview 'bat -n --color=always {} 2>/dev/null || tree -C {} 2>/dev/null || ls -la {} 2>/dev/null'"
-elif command -v tree > /dev/null 2>&1; then
+elif command -v tree >/dev/null 2>&1; then
     export FZF_CTRL_T_OPTS="--preview 'tree -C {} 2>/dev/null || ls -la {} 2>/dev/null'"
 else
     export FZF_CTRL_T_OPTS="--preview 'ls -la {} 2>/dev/null'"

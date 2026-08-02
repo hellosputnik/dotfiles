@@ -42,6 +42,7 @@ install_tmux_plugins() {
 }
 
 run_task "Installed" "~/.profile" safe_copy sh/profile "$HOME/.profile"
+run_task "Installed" "~/.shellrc" safe_copy sh/interactive "$HOME/.shellrc"
 
 if [ ! -f "$HOME/.profile.local" ]; then
     run_task "Created" "~/.profile.local" touch "$HOME/.profile.local"

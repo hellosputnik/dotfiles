@@ -10,11 +10,13 @@ fi
 source "$HOME/.zsh_prompt"
 
 # Keep a large, timestamped history file and append each command immediately.
+# SHARE_HISTORY is intentionally disabled so commands from other sessions appear
+# only after starting a new shell, matching the selected cross-session mode.
 export HISTFILE="${HOME}/.zsh_history.${USER}"
 export HISTSIZE=100000
 export SAVEHIST=$((HISTSIZE * 2))
-setopt APPEND_HISTORY
 setopt INC_APPEND_HISTORY
+unsetopt SHARE_HISTORY
 setopt EXTENDED_HISTORY
 setopt HIST_IGNORE_DUPS
 setopt HIST_IGNORE_ALL_DUPS
@@ -24,9 +26,8 @@ setopt HIST_SAVE_NO_DUPS
 # Prevent accidental file overwriting when redirecting output.
 setopt NO_CLOBBER
 
-# Disable terminal beeps and enable command spelling correction.
+# Disable terminal beeps.
 setopt NO_BEEP
-setopt CORRECT
 
 # Ignore the same low-value commands omitted by Bash's HISTIGNORE. Also omit
 # invalid Git subcommands before they are written to the history file.
@@ -55,87 +56,80 @@ zshaddhistory() {
     return 0
 }
 
-# Prefer eza when available; otherwise, choose the host ls color flag.
-if command -v eza >/dev/null 2>&1; then
-    alias ls='eza --classify=auto --color=auto --group-directories-first'
-else
-    if command ls --color=auto >/dev/null 2>&1; then
-        _ls_color_flag='--color=auto'
-    elif command ls -G >/dev/null 2>&1; then
-        _ls_color_flag='-G'
-    else
-        _ls_color_flag=''
-    fi
-
-    alias ls="command ls ${_ls_color_flag}"
-    unset _ls_color_flag
+# Load shell-neutral interactive defaults.
+if [[ -r "$HOME/.shellrc" ]]; then
+    source "$HOME/.shellrc"
 fi
 
-# Enable color for grep and diff when supported.
-if printf 'x\n' | grep --color=auto -e x >/dev/null 2>&1; then
-    alias grep='grep --color=auto'
-fi
-if diff --color=auto /dev/null /dev/null >/dev/null 2>&1; then
-    alias diff='diff --color=auto'
-fi
-
-# Set navigation shortcuts.
-alias ..='cd ..'
-alias ...='cd ../..'
-
-# Highlight sections inside man pages and other less output.
-export LESS_TERMCAP_mb=$'\e[01;31m'
-export LESS_TERMCAP_md=$'\e[01;38;5;74m'
-export LESS_TERMCAP_me=$'\e[0m'
-export LESS_TERMCAP_se=$'\e[0m'
-export LESS_TERMCAP_so=$'\e[38;5;246m'
-export LESS_TERMCAP_ue=$'\e[0m'
-export LESS_TERMCAP_us=$'\e[04;38;5;146m'
-export LESS="${LESS:--RX}"
-export MANPAGER="${MANPAGER:-less -X}"
-
-# Use modern command-line replacements when available.
-if command -v bat >/dev/null 2>&1; then
-    alias cat='bat'
-    export BAT_STYLE="${BAT_STYLE:-plain}"
-fi
-if command -v fd >/dev/null 2>&1; then
-    alias find='fd'
-fi
-if command -v nvim >/dev/null 2>&1; then
-    alias vim='nvim'
-fi
-if command -v rmv >/dev/null 2>&1; then
-    alias rm='rmv'
+# Add Homebrew's additional zsh functions before initializing completion.
+if [[ -n "${HOMEBREW_PREFIX:-}" \
+        && -d "$HOMEBREW_PREFIX/share/zsh-completions" ]]; then
+    typeset -U fpath
+    fpath=("$HOMEBREW_PREFIX/share/zsh-completions" "${fpath[@]}")
 fi
 
-# Prevent Python virtualenv from modifying the shell prompt.
-export VIRTUAL_ENV_DISABLE_PROMPT=1
-
-# Set up the Rust Cargo environment.
-if [ -f "$HOME/.cargo/env" ]; then
-    source "$HOME/.cargo/env"
-fi
-
-# Add Docker Desktop binaries (macOS).
-if [[ -d "/Applications/Docker.app/Contents/Resources/bin" ]]; then
-    export PATH="/Applications/Docker.app/Contents/Resources/bin${PATH:+:$PATH}"
-fi
-
-# Enable zsh's native completion system. It also handles SSH host completion
-# from the user's SSH configuration on systems with the standard _ssh helper.
+# Enable zsh's native completion system. It handles SSH hosts from ~/.ssh/config
+# through the standard _ssh helper.
 autoload -Uz compinit
-compinit
+compinit -d "${ZDOTDIR:-$HOME}/.zcompdump"
+
+# Match Readline's case-insensitive, first-Tab-visible completion behavior.
+setopt AUTO_LIST
+setopt COMPLETE_IN_WORD
+zstyle ':completion:*' menu select
+zstyle ':completion:*' matcher-list 'm:{a-zA-Z}={A-Za-z}'
+zstyle ':completion:*' group-name ''
+zstyle ':completion:*' squeeze-slashes true
+
+# Match Readline's prefix history search on the Up and Down arrow keys.
+bindkey -e
+autoload -Uz up-line-or-beginning-search down-line-or-beginning-search
+zle -N up-line-or-beginning-search
+zle -N down-line-or-beginning-search
+bindkey '^[[A' up-line-or-beginning-search
+bindkey '^[[B' down-line-or-beginning-search
+bindkey '^[OA' up-line-or-beginning-search
+bindkey '^[OB' down-line-or-beginning-search
 
 # Initialize cross-shell tools using their zsh integrations.
 if command -v zoxide >/dev/null 2>&1; then
     eval "$(zoxide init zsh)"
 fi
+if command -v mise >/dev/null 2>&1; then
+    eval "$(mise activate zsh)"
+fi
 if command -v fzf >/dev/null 2>&1; then
-    source <(fzf --zsh)
+    eval "$(fzf --zsh 2>/dev/null)"
 fi
 
+# Load lightweight zsh plugins directly, without a framework or plugin manager.
+zsh_autosuggestions_script=''
+if [[ -n "${HOMEBREW_PREFIX:-}" \
+        && -r "$HOMEBREW_PREFIX/share/zsh-autosuggestions/zsh-autosuggestions.zsh" ]]; then
+    zsh_autosuggestions_script="$HOMEBREW_PREFIX/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
+elif [[ -r /usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh ]]; then
+    zsh_autosuggestions_script=/usr/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+fi
+if [[ -n "$zsh_autosuggestions_script" ]]; then
+    source "$zsh_autosuggestions_script"
+fi
+unset zsh_autosuggestions_script
+
+# Syntax highlighting should be the final plugin loaded so it can wrap widgets
+# created by completion, fzf, and autosuggestions.
+zsh_syntax_highlighting_script=''
+if [[ -n "${HOMEBREW_PREFIX:-}" \
+        && -r "$HOMEBREW_PREFIX/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" ]]; then
+    zsh_syntax_highlighting_script="$HOMEBREW_PREFIX/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
+elif [[ -r /usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh ]]; then
+    zsh_syntax_highlighting_script=/usr/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
+fi
+if [[ -n "$zsh_syntax_highlighting_script" ]]; then
+    source "$zsh_syntax_highlighting_script"
+fi
+unset zsh_syntax_highlighting_script
+
 # Load local overrides (secrets and machine-specific paths) last.
-if [ -f "$HOME/.zshrc.local" ]; then
+if [[ -f "$HOME/.zshrc.local" ]]; then
     source "$HOME/.zshrc.local"
 fi

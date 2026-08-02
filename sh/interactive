@@ -1,0 +1,83 @@
+# Shared interactive configuration for Bash and zsh.
+#
+# Keep this file compatible with POSIX sh. Shell-specific history, completion,
+# line editing, prompts, and generated initialization belong in each shell's
+# own configuration.
+
+# Prefer eza when available; otherwise, choose the host ls color flag.
+if command -v eza >/dev/null 2>&1; then
+    alias ls='eza --classify=auto --color=auto --group-directories-first'
+else
+    if command ls --color=auto >/dev/null 2>&1; then
+        alias ls='command ls --color=auto'
+    elif command ls -G >/dev/null 2>&1; then
+        alias ls='command ls -G'
+    else
+        alias ls='command ls'
+    fi
+fi
+
+# Enable color for grep and diff when supported.
+if printf 'x\n' | grep --color=auto -e x >/dev/null 2>&1; then
+    alias grep='grep --color=auto'
+fi
+if diff --color=auto /dev/null /dev/null >/dev/null 2>&1; then
+    alias diff='diff --color=auto'
+fi
+
+# Set navigation shortcuts.
+alias ..='cd ..'
+alias ...='cd ../..'
+
+# Highlight sections inside man pages and other less output.
+escape_character=$(printf '\033')
+export LESS_TERMCAP_mb="${escape_character}[01;31m"
+export LESS_TERMCAP_md="${escape_character}[01;38;5;74m"
+export LESS_TERMCAP_me="${escape_character}[0m"
+export LESS_TERMCAP_se="${escape_character}[0m"
+export LESS_TERMCAP_so="${escape_character}[38;5;246m"
+export LESS_TERMCAP_ue="${escape_character}[0m"
+export LESS_TERMCAP_us="${escape_character}[04;38;5;146m"
+unset escape_character
+
+# Preserve ANSI colors and avoid clearing the screen in paged output.
+export LESS="${LESS:--RX}"
+export MANPAGER="${MANPAGER:-less -X}"
+
+# Keep bat's output visually compatible with ordinary cat without replacing
+# the cat command.
+if command -v bat >/dev/null 2>&1; then
+    export BAT_STYLE="${BAT_STYLE:-plain}"
+fi
+
+# Use nvim instead of vim when available.
+if command -v nvim >/dev/null 2>&1; then
+    alias vim='nvim'
+fi
+
+# rmv is managed separately from these dotfiles.
+if command -v rmv >/dev/null 2>&1; then
+    alias rm='rmv'
+fi
+
+# Prevent Python virtualenv from modifying the shell prompt.
+export VIRTUAL_ENV_DISABLE_PROMPT=1
+
+# Set up the Rust Cargo environment.
+if [ -f "$HOME/.cargo/env" ]; then
+    . "$HOME/.cargo/env"
+fi
+
+# Add Docker Desktop binaries on macOS exactly once.
+docker_binary_directory=/Applications/Docker.app/Contents/Resources/bin
+if [ -d "$docker_binary_directory" ]; then
+    case ":${PATH:-}:" in
+        *":$docker_binary_directory:"*) ;;
+        *) PATH="$docker_binary_directory${PATH:+:$PATH}" ;;
+    esac
+    export PATH
+fi
+unset docker_binary_directory
+
+# Define an alias to SSH into the mainframe.
+alias shell='ssh Michael@altimit'

@@ -1,10 +1,18 @@
 # .bashrc
 
-# Set the custom bash prompt.
+# Reuse the portable environment setup for shells started without -l.
+if [[ -z "${DOTFILES_COMMON_PROFILE_LOADED:-}" ]]; then
+    source "$HOME/.profile"
+    export DOTFILES_COMMON_PROFILE_LOADED=1
+fi
+
+# Set the custom Bash prompt.
 source "$HOME/.bash_prompt"
 
-# Write to the history after each command.
-export PROMPT_COMMAND="history -a${PROMPT_COMMAND:+; $PROMPT_COMMAND}"
+# Append each command to the history file without rewriting existing entries.
+# Assign a fresh value so child shells do not inherit the retired history hook
+# from an already-running shell.
+PROMPT_COMMAND='history -a'
 
 # Ignore source, clear, exit, history, man, navigation, and job commands.
 export HISTIGNORE=". *:source *:clear:exit:history:man *:ls:ll:la:pwd:bg:fg:jobs"
@@ -26,7 +34,7 @@ export HISTTIMEFORMAT="%Y-%m-%dT%T%z "
 shopt -s cdspell
 
 # Correct directory spelling errors during tab completion.
-shopt -s dirspell 2> /dev/null
+shopt -s dirspell 2>/dev/null
 
 # Enable recursive globbing.
 shopt -s globstar
@@ -52,109 +60,33 @@ shopt -s checkhash
 # Prevent accidental file overwriting when redirecting output (use >| to force).
 set -o noclobber
 
-# Load local overrides (secrets, machine-specific paths) if they exist.
-if [ -f "$HOME/.bashrc.local" ]; then
-    source "$HOME/.bashrc.local"
+# Load shell-neutral interactive defaults.
+if [[ -r "$HOME/.shellrc" ]]; then
+    source "$HOME/.shellrc"
 fi
 
-# Prefer eza when available; otherwise, choose the host ls color flag.
-if command -v eza > /dev/null 2>&1; then
-    alias ls='eza --classify=auto --color=auto --group-directories-first'
-else
-    if command ls --color=auto > /dev/null 2>&1; then
-        _ls_color_flag='--color=auto'
-    elif command ls -G > /dev/null 2>&1; then
-        _ls_color_flag='-G'
-    else
-        _ls_color_flag=''
-    fi
-
-    alias ls="command ls ${_ls_color_flag}"
-    unset _ls_color_flag
-fi
-
-# Enable color for grep if supported.
-if printf 'x\n' | grep --color=auto -e x > /dev/null 2>&1; then
-    alias grep='grep --color=auto'
-fi
-
-# Enable color for diff if supported.
-if diff --color=auto /dev/null /dev/null > /dev/null 2>&1; then
-    alias diff='diff --color=auto'
-fi
-
-# Set navigation shortcuts.
-alias ..='cd ..'
-alias ...='cd ../..'
-
-# Highlight sections inside man pages and other less output.
-export LESS_TERMCAP_mb=$'\e[01;31m'
-export LESS_TERMCAP_md=$'\e[01;38;5;74m'
-export LESS_TERMCAP_me=$'\e[0m'
-export LESS_TERMCAP_se=$'\e[0m'
-export LESS_TERMCAP_so=$'\e[38;5;246m'
-export LESS_TERMCAP_ue=$'\e[0m'
-export LESS_TERMCAP_us=$'\e[04;38;5;146m'
-
-# Preserve ANSI colors and avoid clearing the screen in paged output.
-export LESS="${LESS:--RX}"
-export MANPAGER="${MANPAGER:-less -X}"
-
-# Use 'bat' instead of 'cat' if available.
-if command -v bat > /dev/null; then
-    alias cat='bat'
-    export BAT_STYLE="${BAT_STYLE:-plain}"
-fi
-
-# Use 'fd' instead of 'find' if available.
-if command -v fd > /dev/null; then
-    alias find='fd'
-fi
-
-# Use 'nvim' instead of 'vim' if available.
-if command -v nvim > /dev/null; then
-    alias vim='nvim'
-fi
-
-# Use 'rmv' instead of 'rm' if available.
-if command -v rmv > /dev/null; then
-    alias rm='rmv'
-fi
-
-# Prevent Python virtualenv from modifying the shell prompt.
-export VIRTUAL_ENV_DISABLE_PROMPT=1
-
-# Set up the Rust Cargo environment.
-if [ -f "$HOME/.cargo/env" ]; then
-    source "$HOME/.cargo/env"
-fi
-
-# Add Docker Desktop binaries (macOS).
-if [[ -d "/Applications/Docker.app/Contents/Resources/bin" ]]; then
-    export PATH="/Applications/Docker.app/Contents/Resources/bin${PATH:+:$PATH}"
-fi
-
-# Initialize zoxide for Bash.
-if command -v zoxide > /dev/null; then
+# Initialize cross-shell tools using their Bash integrations.
+if command -v zoxide >/dev/null 2>&1; then
     eval "$(zoxide init bash)"
 fi
+if command -v mise >/dev/null 2>&1; then
+    eval "$(mise activate bash)"
+fi
 
-# Define an alias to SSH into the mainframe.
-alias shell='ssh Michael@altimit'
-
-# Load command completions when the host provides them.
-if command -v brew > /dev/null 2>&1 \
-        && [ -r "$(brew --prefix)/etc/profile.d/bash_completion.sh" ]; then
-    # Set the legacy compatibility directory path used by Homebrew's bash-completion.
-    export BASH_COMPLETION_COMPAT_DIR="$(brew --prefix)/etc/bash_completion.d"
-    source "$(brew --prefix)/etc/profile.d/bash_completion.sh"
-elif [ -r /etc/bash_completion ]; then
+# Load the host's Bash completions.
+if [[ -n "${HOMEBREW_PREFIX:-}" &&
+    -r "$HOMEBREW_PREFIX/etc/profile.d/bash_completion.sh" ]]; then
+    # Homebrew's compatibility directory contains completions written for
+    # bash-completion 1.x.
+    export BASH_COMPLETION_COMPAT_DIR="$HOMEBREW_PREFIX/etc/bash_completion.d"
+    source "$HOMEBREW_PREFIX/etc/profile.d/bash_completion.sh"
+elif [[ -r /etc/bash_completion ]]; then
     source /etc/bash_completion
 fi
 
 # Complete SSH hostnames declared in ~/.ssh/config, ignoring wildcards.
-if [ -r "$HOME/.ssh/config" ]; then
-    if command -v rg > /dev/null; then
+if [[ -r "$HOME/.ssh/config" ]]; then
+    if command -v rg >/dev/null 2>&1; then
         complete -o default -o nospace \
             -W "$(rg -i '^\s*Host\s+([^*?\s]+)' -o -r '$1' "$HOME/.ssh/config" 2>/dev/null)" \
             ssh scp sftp
@@ -165,60 +97,13 @@ if [ -r "$HOME/.ssh/config" ]; then
     fi
 fi
 
-# Proactively remove misspelled commands from history.
-_bash_history_hook() {
-    # Capture the exit status of the command that just ran.
-    local last_status=$?
-    
-    # Get the last command from history.
-    local last_command
-    last_command=$(fc -ln -1 2>/dev/null)
-    
-    # Strip leading and trailing whitespace.
-    last_command="${last_command##[[:space:]]}"
-    last_command="${last_command%%[[:space:]]}"
+# Initialize fzf after the base completion system so its key bindings and
+# completion trigger can extend it.
+if command -v fzf >/dev/null 2>&1; then
+    eval "$(fzf --bash 2>/dev/null)"
+fi
 
-    [[ -z "$last_command" ]] && return
-    
-    local should_clean=0
-    
-    # Handle "command not found" errors (exit status 127).
-    if [[ $last_status -eq 127 ]]; then
-        should_clean=1
-    # Check for Git commands with misspelled subcommands.
-    else
-        # Parse the command into words using a Bash array.
-        local words
-        read -r -a words <<< "$last_command"
-        local first_word="${words[0]}"
-        
-        if [[ "$first_word" == "git" ]]; then
-            local second_word="${words[1]}"
-            # Only check if there is a subcommand and it does not start with a hyphen.
-            if [[ -n "$second_word" && ! "$second_word" =~ ^- ]]; then
-                # Verify if the subcommand is a valid Git subcommand or alias.
-                local is_valid=0
-                if git --list-cmds=main,others | grep -q "^${second_word}$"; then
-                    is_valid=1
-                elif git config --get "alias.${second_word}" &>/dev/null; then
-                    is_valid=1
-                fi
-                
-                # If the subcommand is invalid, mark the history entry for removal.
-                if [[ $is_valid -eq 0 ]]; then
-                    should_clean=1
-                fi
-            fi
-        fi
-    fi
-    
-    # Remove the command from history if marked for cleaning.
-    if [[ $should_clean -eq 1 ]]; then
-        history -d $((HISTCMD - 1)) 2>/dev/null
-        # Write the updated in-memory history back to the file.
-        history -w
-    fi
-}
-
-# Append the history hook to PROMPT_COMMAND.
-export PROMPT_COMMAND="${PROMPT_COMMAND:+$PROMPT_COMMAND; }_bash_history_hook"
+# Load local overrides (secrets and machine-specific paths) last.
+if [[ -f "$HOME/.bashrc.local" ]]; then
+    source "$HOME/.bashrc.local"
+fi

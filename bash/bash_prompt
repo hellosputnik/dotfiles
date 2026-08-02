@@ -13,7 +13,6 @@ yellow="\[$(tput setaf 3)\]"
 blue="\[$(tput setaf 4)\]"
 magenta="\[$(tput setaf 5)\]"
 cyan="\[$(tput setaf 6)\]"
-white="\[$(tput setaf 7)\]"
 
 # Highlight root and SSH sessions without changing normal prompt shape.
 if [[ "${USER:-}" == "root" ]]; then
@@ -62,7 +61,7 @@ git-status() {
         local git_status_output
         git_status_output="$(GIT_OPTIONAL_LOCKS=0 timeout 0.2 git status --porcelain 2>/dev/null)"
         if [ $? -eq 124 ]; then
-            printf "${branch}  "
+            printf '%s  ' "$branch"
             return
         fi
 
@@ -89,7 +88,7 @@ git-status() {
         symbol="[${symbol}]"
     fi
 
-    printf "${branch}  ${symbol}"
+    printf '%s  %s' "$branch" "$symbol"
 }
 
 # Set the prompt (PS1).

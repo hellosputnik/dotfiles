@@ -22,7 +22,7 @@ dotfiles_zsh_git_status() {
         [ -n "$branch" ] || return 0
 
         if GIT_OPTIONAL_LOCKS=0 timeout 0.1 git rev-parse --verify refs/stash >/dev/null 2>&1; then
-            symbol='\$'
+            symbol='$'
         fi
 
         git_status_output="$(GIT_OPTIONAL_LOCKS=0 timeout 0.2 git status --porcelain 2>/dev/null)"
@@ -56,22 +56,18 @@ dotfiles_zsh_git_status() {
     printf '%s  %s' "$branch" "$symbol"
 }
 
-# Set the terminal title before each prompt when the terminal supports it.
-dotfiles_zsh_title() {
-    if [[ "$TERM" == xterm* || "$TERM" == rxvt* || "$TERM" == screen* \
-            || "$TERM" == tmux* || -n "${TERM_PROGRAM:-}" ]]; then
-        print -Pn '\e]0;%~\a'
-    fi
-}
-autoload -Uz add-zsh-hook
-add-zsh-hook precmd dotfiles_zsh_title
-
 setopt PROMPT_SUBST
+
+# The prompt starts with its own spacer line, so zsh's partial-line "%" marker
+# is redundant and becomes visible around otherwise invisible title updates.
+unsetopt PROMPT_SP
 
 if [[ ${EUID:-} -eq 0 ]]; then
     dotfiles_zsh_user_color='red'
+    dotfiles_zsh_prompt_character='#'
 else
     dotfiles_zsh_user_color='cyan'
+    dotfiles_zsh_prompt_character='$'
 fi
 
 if [[ -n "${SSH_TTY:-}" ]]; then
@@ -80,10 +76,19 @@ else
     dotfiles_zsh_host_color='blue'
 fi
 
+# Include the terminal title in the prompt as a non-printing sequence. Writing
+# it from a precmd hook makes zsh treat the invisible output as a partial line
+# and display its "%" marker before every prompt.
+dotfiles_zsh_title=''
+if [[ "$TERM" == xterm* || "$TERM" == rxvt* || "$TERM" == screen* \
+        || "$TERM" == tmux* || -n "${TERM_PROGRAM:-}" ]]; then
+    dotfiles_zsh_title=$'%{\e]0;%~\a%}'
+fi
+
 if command -v git >/dev/null 2>&1; then
-    PROMPT="%F{${dotfiles_zsh_user_color}}%n%f@%F{${dotfiles_zsh_host_color}}%m%f: %F{green}%~%f %F{magenta}\$(dotfiles_zsh_git_status)%f\n%# "
+    PROMPT="${dotfiles_zsh_title}"$'\n'"%F{${dotfiles_zsh_user_color}}%n%f@%F{${dotfiles_zsh_host_color}}%m%f: %F{green}%~%f %F{magenta}\$(dotfiles_zsh_git_status)%f"$'\n'"${dotfiles_zsh_prompt_character} "
 else
-    PROMPT="%F{${dotfiles_zsh_user_color}}%n%f@%F{${dotfiles_zsh_host_color}}%m%f: %F{green}%~%f\n%# "
+    PROMPT="${dotfiles_zsh_title}"$'\n'"%F{${dotfiles_zsh_user_color}}%n%f@%F{${dotfiles_zsh_host_color}}%m%f: %F{green}%~%f"$'\n'"${dotfiles_zsh_prompt_character} "
 fi
 
 # Keep useful source-location information when tracing zsh scripts.

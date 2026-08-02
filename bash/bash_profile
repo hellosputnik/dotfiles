@@ -1,19 +1,11 @@
 # .bash_profile
 
-# Add Homebrew to the PATH if it exists.
-if [[ -f "/opt/homebrew/bin/brew" ]]; then
-    eval "$(/opt/homebrew/bin/brew shellenv)"
-elif [[ -f "/usr/local/bin/brew" ]]; then
-    eval "$(/usr/local/bin/brew shellenv)"
+# Reuse the portable environment setup for login shells. The guard keeps
+# .bashrc from sourcing it twice when both startup files are processed.
+if [[ -z "${DOTFILES_COMMON_PROFILE_LOADED:-}" ]]; then
+    source "$HOME/.profile"
+    export DOTFILES_COMMON_PROFILE_LOADED=1
 fi
-
-# Source the shell-agnostic personal configurations.
-source "$HOME/.profile"
 
 # Source interactive non-login shell configurations.
 source "$HOME/.bashrc"
-
-# Initialize the fuzzy finder (fzf).
-if command -v fzf > /dev/null; then
-    eval "$(fzf --bash)"
-fi
