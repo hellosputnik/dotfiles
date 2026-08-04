@@ -88,9 +88,7 @@ run_skip() {
 
 printf "\n${BOLD}${BLUE}Dotfiles Test Suite${RESET}\n\n"
 
-run_test "Configuration and syntax" tests/shell/test_configuration.sh
-run_test "Idempotent bootstrap" tests/shell/test_bootstrap.sh
-
+# 1. Static Analysis (Fast fail check)
 if command -v shellcheck >/dev/null 2>&1; then
     run_test "ShellCheck (Bash)" shellcheck -x -s bash -e SC1090,SC1091,SC2088,SC2148,SC2059,SC2016 \
         init.sh \
@@ -99,8 +97,14 @@ if command -v shellcheck >/dev/null 2>&1; then
         bash/bashrc \
         docker/boot.sh \
         git/git-init.sh \
+        tests/docker/test_docker.sh \
+        tests/editors/test_editors.sh \
+        tests/git/test_git.sh \
+        tests/homebrew/test_brewfile.sh \
         tests/shell/test_bootstrap.sh \
         tests/shell/test_configuration.sh \
+        tests/tmux/test_tmux.sh \
+        tests/tools/test_tools.sh \
         test.sh
     run_test "ShellCheck (POSIX sh)" shellcheck -x -s sh -e SC1090,SC1091,SC2088,SC2089,SC2090,SC2148,SC2059 \
         sh/common.sh \
@@ -109,6 +113,23 @@ if command -v shellcheck >/dev/null 2>&1; then
 else
     run_skip "ShellCheck" "not installed"
 fi
-printf "\n"
+
+# 2. Core Shell & Bootstrap
+run_test "Configuration and syntax" tests/shell/test_configuration.sh
+run_test "Idempotent bootstrap" tests/shell/test_bootstrap.sh
+
+# 3. Environment & Package Management
+run_test "Homebrew Brewfile" tests/homebrew/test_brewfile.sh
+
+# 4. CLI Tools & Core Utilities
+run_test "CLI and network tools" tests/tools/test_tools.sh
+run_test "Git configuration and bootstrap" tests/git/test_git.sh
+run_test "Isolated tmux configuration" tests/tmux/test_tmux.sh
+
+# 5. Text Editors
+run_test "Vim and Neovim editors" tests/editors/test_editors.sh
+
+# 6. Container Integration
+run_test "Docker environment" tests/docker/test_docker.sh
 
 printf "\n"

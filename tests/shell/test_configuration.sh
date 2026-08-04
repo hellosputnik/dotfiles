@@ -13,8 +13,14 @@ bash -n \
     docker/boot.sh \
     git/git-init.sh \
     test.sh \
+    tests/docker/test_docker.sh \
+    tests/editors/test_editors.sh \
+    tests/git/test_git.sh \
+    tests/homebrew/test_brewfile.sh \
     tests/shell/test_bootstrap.sh \
-    tests/shell/test_configuration.sh
+    tests/shell/test_configuration.sh \
+    tests/tmux/test_tmux.sh \
+    tests/tools/test_tools.sh
 
 /bin/sh -n \
     sh/common.sh \
