@@ -2,8 +2,6 @@
 
 set -euo pipefail
 
-# Run from the script's own directory so all relative source paths resolve
-# correctly, regardless of the directory from which init.sh was invoked.
 cd "$(dirname "${BASH_SOURCE[0]}")"
 
 source sh/common.sh
@@ -30,12 +28,9 @@ create_boot_link() {
     ln -sf "$PWD/docker/boot.sh" "$HOME/.local/bin/boot"
 }
 
-# Install tmux plugins non-interactively (the equivalent of pressing prefix + I).
-# TPM reads the plugin list from ~/.tmux.conf but resolves the clone directory
-# from TMUX_PLUGIN_MANAGER_PATH in the tmux server environment. Both commands run
-# as one sequence because a server started with no sessions exits as soon as it
-# goes idle (exit-empty is on by default), which would race a second invocation.
-# Any already-running server is reused and left otherwise untouched.
+# TPM resolves the clone directory from TMUX_PLUGIN_MANAGER_PATH in the server
+# environment, and both commands run as one sequence because a session-less
+# server exits as soon as it goes idle, which would race a second invocation.
 install_tmux_plugins() {
     tmux start-server \; set-environment -g TMUX_PLUGIN_MANAGER_PATH "$HOME/.tmux/plugins/"
     "$HOME/.tmux/plugins/tpm/bin/install_plugins"
@@ -70,8 +65,6 @@ if command -v git > /dev/null; then
         run_task "Created" "~/.gitconfig.local" touch "$HOME/.gitconfig.local"
     fi
 
-    # Prompt for Git identity if it is not already set, and only in interactive sessions
-    # (skipped in Docker builds and when standard input is piped).
     if [ -t 0 ] && [ "${DOCKER:-}" != "true" ]; then
         if [ -z "$(git config --global --includes --get user.name 2>/dev/null)" ] \
                 || [ -z "$(git config --global --includes --get user.email 2>/dev/null)" ]; then
@@ -100,13 +93,13 @@ if command -v tmux > /dev/null; then
     if [ ! -d "$HOME/.tmux/plugins/tpm" ]; then
         run_task "Installing" "tmux plugin manager (tpm)" git clone https://github.com/tmux-plugins/tpm "$HOME/.tmux/plugins/tpm"
     fi
-    # Install the declared plugins, but only in interactive host sessions
-    # (skipped in Docker builds and when standard input is piped). A failure here
-    # is non-fatal: plugin cloning needs the network, and losing it should not
-    # abort the remaining local setup steps.
+    # We need the network to download plugins, so a failure here only warns
+    # rather than aborting the remaining local setup steps.
     if [ -x "$HOME/.tmux/plugins/tpm/bin/install_plugins" ] \
             && [ -t 0 ] && [ "${DOCKER:-}" != "true" ]; then
-        run_with_spinner "Installing" "Installed" "tmux plugins" install_tmux_plugins || true
+        if ! run_with_spinner "Installing" "Installed" "tmux plugins" install_tmux_plugins; then
+            printf 'Warning: tmux plugin install failed; rerun init.sh with network access.\n' >&2
+        fi
     fi
 fi
 
@@ -149,8 +142,7 @@ if [ "${DOCKER:-}" != "true" ]; then
     run_task "Installed" "~/.ssh/config" safe_copy ssh/config "$HOME/.ssh/config"
 fi
 
-# Install the boot launcher script only when running on the host machine.
-# This prevents creating a broken symbolic link inside the Docker container.
+# The boot launcher starts the container, so it is only useful on the host.
 if [ "${DOCKER:-}" != "true" ]; then
     run_task "Created" "~/.local/bin/boot" create_boot_link
 fi
